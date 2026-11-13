@@ -1,0 +1,2 @@
+-- Module 03: Advertisement & Analytics (Owner: Quang)
+-- Tables: Advertisements, AdContracts, AdSlots, AdRevenue, Donations

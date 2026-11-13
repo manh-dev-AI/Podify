@@ -1,0 +1,1 @@
+-- Q7 (Mạnh): Tìm Users có tài khoản trên 6 tháng nhưng chưa từng Subscribe.

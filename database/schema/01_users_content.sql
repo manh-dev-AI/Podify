@@ -1,0 +1,2 @@
+-- Module 01: Content Management (Owner: Mạnh)
+-- Tables: Users, Creators, PodcastChannels, Episodes

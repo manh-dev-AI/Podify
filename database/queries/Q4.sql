@@ -1,0 +1,1 @@
+-- Q4 (Quân): Các Channel có Rating trung bình dưới 3.

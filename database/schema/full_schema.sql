@@ -1,0 +1,3 @@
+-- Podify Official Shared Database Schema (MySQL - 12 Tables)
+-- Managed by Schema Owner: Mạnh
+-- Order: 01_users_content -> 02_listening -> 03_advertisement

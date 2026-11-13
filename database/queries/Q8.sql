@@ -1,0 +1,1 @@
+-- Q8 (Quang): Tính doanh thu quảng cáo tích lũy theo Creator qua từng tháng bằng Window Function.
