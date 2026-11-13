@@ -23,17 +23,17 @@
 ### Tech Stack
 | Thành phần | Công nghệ lựa chọn | Ghi chú |
 | :--- | :--- | :--- |
-| **Hệ quản trị CSDL (DBMS)** | **MySQL** | Chuẩn hóa 3NF, PK/FK, `UNIQUE`, `CHECK`, Index, Trigger, Window Function |
-| **Backend** | **Python (Flask)** | Kiến trúc RESTful API (JSON), chia module bằng Blueprints |
+| **Hệ quản trị CSDL (DBMS)** | **Microsoft SQL Server (MS SQL Server)** | Chuẩn hóa 3NF, PK/FK, `UNIQUE`, `CHECK`, Index, T-SQL Trigger, Window Function |
+| **Backend** | **Python (Flask)** | Kiến trúc RESTful API (JSON), kết nối qua `pyodbc`, chia module bằng Blueprints |
 | **Frontend** | **HTML5, CSS3, JavaScript** | Giao diện đa trang nhẹ, tách JS/CSS theo từng phân hệ |
 | **Version Control** | **Git & GitHub** | Mô hình *1 Repo – 3 Feature Branches – 1 Shared Database* |
 
 ### Công cụ nhóm chốt sử dụng
 - **GitHub:** Quản lý mã nguồn, branch, Pull Request, Code Review và Issues.
 - **Visual Studio Code:** Soạn thảo code Backend, Frontend, SQL và thao tác Git.
-- **MySQL Workbench:** Thiết kế mô hình ERD vật lý, quản trị MySQL Database, chạy SQL scripts và kiểm thử truy vấn.
+- **SQL Server Management Studio (SSMS):** Quản trị SQL Server, thiết kế sơ đồ E-R tự động qua **Database Diagrams**, chạy SQL scripts và kiểm thử truy vấn.
 - **Postman:** Kiểm thử các REST API endpoints (request, response, HTTP status codes).
-- **Draw.io (`app.diagrams.net`):** Vẽ sơ đồ ERD, System Architecture và Flowchart nghiệp vụ.
+- **Draw.io (`app.diagrams.net`):** Vẽ sơ đồ System Architecture và Flowchart nghiệp vụ (hoặc sơ đồ ERD khái niệm).
 
 ---
 
@@ -43,10 +43,10 @@
 Podify/
 ├── README.md                        # Tài liệu tổng quan, định hướng, cấu trúc và phân công của dự án
 ├── .gitignore                       # Danh sách file/thư mục bỏ qua khi commit Git (.env, venv, __pycache__...)
-├── .env.example                     # File mẫu các biến môi trường (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME...)
+├── .env.example                     # File mẫu các biến môi trường (DB_SERVER, DB_PORT, DB_NAME, DB_USER...)
 ├── LICENSE                          # Giấy phép mã nguồn mở (MIT)
 │
-├── database/                        # Toàn bộ tài nguyên liên quan đến Cơ sở dữ liệu MySQL
+├── database/                        # Toàn bộ tài nguyên liên quan đến Cơ sở dữ liệu SQL Server (T-SQL)
 │   ├── schema/                      # Script định nghĩa bảng, PK, FK, Constraints theo từng phân hệ
 │   │   ├── 01_users_content.sql     # Bảng Users, Creators, PodcastChannels, Episodes (Mạnh)
 │   │   ├── 02_listening.sql         # Bảng Subscriptions, ListeningHistory, Ratings (Quân)
@@ -57,14 +57,14 @@ Podify/
 │   │   ├── 02_seed_listening.sql    # Dữ liệu mẫu Subscriptions, ListeningHistory, Ratings
 │   │   ├── 03_seed_ads.sql          # Dữ liệu mẫu Ads, Contracts, Slots, Revenue, Donations
 │   │   └── full_seed.sql            # Bản tổng hợp nạp dữ liệu mẫu đúng thứ tự phụ thuộc FK
-│   ├── queries/                     # 8 câu truy vấn SQL nghiệp vụ bắt buộc (Q1.sql -> Q8.sql)
-│   ├── triggers/                    # Các Trigger đảm bảo Business Rules (vd: tối đa 3 hợp đồng cho Episode < 20p)
-│   └── erd/                         # File sơ đồ ERD (Draw.io / MySQL Workbench / ảnh xuất ra)
+│   ├── queries/                     # 8 câu truy vấn T-SQL nghiệp vụ bắt buộc (Q1.sql -> Q8.sql)
+│   ├── triggers/                    # Các T-SQL Trigger đảm bảo Business Rules (vd: tối đa 3 hợp đồng cho Episode < 20p)
+│   └── erd/                         # File sơ đồ ERD (SSMS Database Diagram xuất ra / Draw.io)
 │
 ├── backend/                         # Tầng xử lý nghiệp vụ & RESTful API (Python Flask)
 │   ├── app.py                       # Điểm khởi chạy ứng dụng Flask và đăng ký các module API
-│   ├── requirements.txt             # Danh sách thư viện Python cần cài đặt
-│   ├── config/                      # Cấu hình kết nối MySQL và thiết lập ứng dụng
+│   ├── requirements.txt             # Danh sách thư viện Python cần cài đặt (Flask, pyodbc...)
+│   ├── config/                      # Cấu hình kết nối SQL Server và thiết lập ứng dụng
 │   ├── common/                      # Tiện ích dùng chung (Auth/Session middleware, response format, error handler)
 │   └── modules/                     # Mã nguồn API tách riêng theo 3 phân hệ
 │       ├── content/                 # API tài khoản, Creator, Channel, Episode, Discovery & Search
@@ -126,7 +126,7 @@ Podify/
 #### Member 1 — Mạnh: **Content Management** (`feature/content-management`)
 - **Database (4 bảng):** `Users`, `Creators`, `PodcastChannels`, `Episodes`.
 - **Chức năng Web (BE + FE):** Registration, Login (phân quyền User/Creator), Creator Profile, Create Podcast Channel, Episode Management (CRUD), Podcast Discovery, Search Channel & Episode.
-- **SQL Queries:**
+- **SQL Queries (T-SQL):**
   - `Q1`: Tìm các Episodes có thời lượng từ 15–30 phút thuộc một Channel cụ thể.
   - `Q7`: Tìm các Users có tài khoản trên 6 tháng nhưng chưa từng Subscribe.
 - **Trách nhiệm bổ sung — Schema Owner:** Quản lý phiên bản Schema chính thức (`full_schema.sql`), kiểm tra PK/FK/naming convention và chịu trách nhiệm tích hợp Database (Global ERD & Database Integration).
@@ -134,7 +134,7 @@ Podify/
 #### Member 2 — Quân: **Listening & User Interaction** (`feature/listening-interaction`)
 - **Database (3 bảng):** `Subscriptions` (ràng buộc `UNIQUE` chống đăng ký trùng), `ListeningHistory` (lưu tiến trình nghe), `Ratings` (`CHECK` 1–5).
 - **Chức năng Web (BE + FE):** Subscribe / Unsubscribe, Audio Player, Listening History, Continue Listening, Rate Episode, My Library.
-- **SQL Queries:**
+- **SQL Queries (T-SQL):**
   - `Q3`: Thống kê số lượng Subscriber mới theo từng Channel trong tháng.
   - `Q4`: Tìm các Channel có Rating trung bình dưới 3.
   - `Q5`: Danh sách Episode và số lượt nghe (kể cả Episode chưa có lượt nghe).
@@ -143,12 +143,12 @@ Podify/
 
 #### Member 3 — Quang: **Advertisement & Analytics** (`feature/ads-analytics`)
 - **Database (5 bảng + Trigger):** `Advertisements`, `AdContracts`, `AdSlots`, `AdRevenue`, `Donations`.
-  - Triển khai **Trigger** kiểm tra tối đa **3 hợp đồng cho mỗi Episode có thời lượng dưới 20 phút**.
+  - Triển khai **T-SQL Trigger** kiểm tra tối đa **3 hợp đồng cho mỗi Episode có thời lượng dưới 20 phút**.
   - Làm rõ quan hệ giữa `AdContracts` (thỏa thuận thương mại) và `AdSlots` (vị trí quảng cáo trong Episode).
 - **Chức năng Web (BE + FE):** Advertisement Management, Ad Contract Management, Ad Slot Management, Revenue Report, Donation History, Monthly Analytics, Top Podcast Report.
-- **SQL Queries:**
+- **SQL Queries (T-SQL):**
   - `Q2`: Tìm các quảng cáo xuất hiện trong `EP99`.
-  - `Q8`: Tính doanh thu quảng cáo tích lũy theo Creator qua từng tháng bằng **Window Function**.
+  - `Q8`: Tính doanh thu quảng cáo tích lũy theo Creator qua từng tháng bằng **Window Function** (OVER / PARTITION BY).
 - **Trách nhiệm bổ sung — Integration Coordinator:** Phụ trách System Architecture, theo dõi tiến độ tích hợp 3 module và điều phối Integration Testing.
 
 ---
@@ -163,12 +163,13 @@ Podify/
 2. **Cấu hình biến môi trường:**
    ```bash
    cp .env.example .env
-   # Mở file .env và điền thông tin kết nối MySQL cục bộ của bạn
+   # Mở file .env và điền thông tin kết nối Microsoft SQL Server cục bộ của bạn
    ```
-3. **Khởi tạo cơ sở dữ liệu MySQL:**
-   - Mở **MySQL Workbench** (hoặc MySQL CLI).
-   - Chạy `database/schema/full_schema.sql` để tạo database và 12 bảng.
-   - Chạy `database/triggers/` (nếu tách riêng) và `database/seed/full_seed.sql` để nạp dữ liệu mẫu.
+3. **Khởi tạo cơ sở dữ liệu trên SQL Server:**
+   - Mở **SQL Server Management Studio (SSMS)**.
+   - Kết nối tới server của bạn (thường là `.` hoặc `localhost` hoặc `SQLEXPRESS`).
+   - Mở và chạy file `database/schema/full_schema.sql` để tạo database và 12 bảng.
+   - Mở và chạy các Trigger trong `database/triggers/` và dữ liệu mẫu `database/seed/full_seed.sql`.
 4. **Cài đặt thư viện & chạy Backend (Flask):**
    ```bash
    cd backend
@@ -178,4 +179,3 @@ Podify/
    python app.py
    ```
 5. **Mở Frontend:** Mở `frontend/index.html` (qua Live Server của VS Code hoặc cấu hình serve tĩnh từ Flask) để tương tác với hệ thống.
-
