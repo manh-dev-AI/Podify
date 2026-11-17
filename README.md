@@ -153,28 +153,38 @@ Podify/
 
 ---
 
-## 5. Hướng dẫn cài đặt & chạy cục bộ (Quick Start)
+## 5. Hướng dẫn cài đặt & chạy cục bộ (Quick Start cho thành viên)
 
-1. **Clone repository và chuyển sang nhánh làm việc:**
+### Cách 1: Chạy nhanh 1-click trên Windows (Khuyên dùng)
+1. **Clone repository và chuyển vào thư mục dự án:**
    ```bash
    git clone https://github.com/manh-dev-AI/Podify.git
    cd Podify
    ```
-2. **Cấu hình biến môi trường:**
+2. **Nháy đúp file `start_podify.bat`** (hoặc chạy `.\start_podify.bat` trong terminal):
+   - Lần đầu chạy, script sẽ tự tạo `backend\venv`, cài thư viện, tạo file `.env` từ `.env.example` và mở Notepad để bạn điền **`DB_PASSWORD`** MySQL của máy mình.
+   - Sau khi lưu `.env`, script tự khởi tạo `podify_db` (12 bảng + 3 Triggers + dữ liệu mẫu), khởi động Flask và tự mở trình duyệt tại **`http://127.0.0.1:5000`**.
+3. **Các file tiện ích đi kèm:**
+   - `reset_db.bat`: Reset lại toàn bộ 12 bảng, Triggers và dữ liệu mẫu sạch sẽ trước khi demo.
+   - `run_tests.bat`: Chạy toàn bộ 20 bài kiểm thử (Static SQL + Live MySQL + API + Integration).
+
+### Cách 2: Chạy thủ công (Windows / macOS / Linux)
+1. **Cấu hình biến môi trường:**
    ```bash
    cp .env.example .env
-   # Mở file .env và điền thông tin kết nối MySQL cục bộ của bạn
+   # Mở file .env và điền DB_PASSWORD của MySQL cục bộ
    ```
-3. **Khởi tạo cơ sở dữ liệu trên MySQL:**
-   - Mở **MySQL Workbench** (hoặc MySQL CLI).
-   - Chạy `database/schema/full_schema.sql` để tạo database và 12 bảng.
-   - Chạy các Trigger trong `database/triggers/` và dữ liệu mẫu `database/seed/full_seed.sql`.
-4. **Cài đặt thư viện & chạy Backend (Flask):**
+2. **Cài đặt thư viện & khởi tạo cơ sở dữ liệu MySQL:**
    ```bash
    cd backend
    python -m venv venv
    # Windows: venv\Scripts\activate | macOS/Linux: source venv/bin/activate
    pip install -r requirements.txt
+   python init_db.py
+   ```
+   *(Hoặc mở **MySQL Workbench** chạy lần lượt `database/schema/full_schema.sql` → `database/triggers/01_ad_contract_limit.sql` → `database/seed/full_seed.sql`).*
+3. **Chạy ứng dụng (Backend Flask + Frontend tích hợp):**
+   ```bash
    python app.py
    ```
-5. **Mở Frontend:** Mở `frontend/index.html` (qua Live Server của VS Code hoặc cấu hình serve tĩnh từ Flask) để tương tác với hệ thống.
+4. **Mở trình duyệt:** Truy cập `http://127.0.0.1:5000` (tài khoản mẫu: `nguyenvan_a` [creator], `tranthi_b` [creator], `pham_d` [user], `le_c` [user >6 tháng chưa subscribe] — mật khẩu chung: `123456`). Xem thêm tài liệu bảo vệ đồ án tại `docs/presentation-guide.md`.

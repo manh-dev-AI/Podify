@@ -1,0 +1,247 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="980" viewBox="0 0 1720 980" font-family="Consolas, Segoe UI, sans-serif">
+<rect width="1720" height="980" fill="#0f0e17"/>
+<text x="40" y="42" fill="#f4f4f8" font-size="22" font-weight="700">PODIFY — GLOBAL DATABASE ERD (MySQL 8.0 · 12 Tables · 3NF)</text>
+<text x="40" y="68" fill="#a1a0b5" font-size="13">One Shared Database Architecture | Content (4) · Listening (3) · Ads &amp; Analytics (5)</text>
+<polyline points="207.5,324 191.5,324 191.5,370 207.5,370" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="166.5" y="338.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="191.5" y="351.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : 0..1</text>
+<polyline points="207.5,560 199.5,560 199.5,620 207.5,620" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="174.5" y="581.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="199.5" y="594.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="375,715.0 415.0,715.0 415.0,607.0 455,607.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="390.0" y="652.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="415.0" y="665.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="375,217.0 423.0,217.0 423.0,193.0 455,193.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="398.0" y="196.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="423.0" y="209.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="207.5,620 436.0,620 436.0,276 632.5,276" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="411.0" y="439.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="436.0" y="452.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="375,217.0 399.0,217.0 399.0,385.0 455,385.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="374.0" y="292.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="399.0" y="305.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="632.5,500 624.5,500 624.5,480 632.5,480" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="599.5" y="481.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="624.5" y="494.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="207.5,324 420.0,324 420.0,745 632.5,745" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="395.0" y="525.5" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="420.0" y="538.5" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="632.5,714 640.5,714 640.5,745 632.5,745" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="615.5" y="720.5" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="640.5" y="733.5" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="1325,205.0 1301.0,205.0 1301.0,229.0 1245,229.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="1276.0" y="208.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="1301.0" y="221.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="375,465.0 616.5,465.0 616.5,229.0 890,229.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="591.5" y="338.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="616.5" y="351.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="1067.5,348 1059.5,348 1059.5,400 1067.5,400" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="1034.5" y="365.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="1059.5" y="378.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="810,607.0 850.0,607.0 850.0,495.0 890,495.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="825.0" y="542.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="850.0" y="555.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="1245,229.0 1293.0,229.0 1293.0,495.0 1325,495.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="1268.0" y="353.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="1293.0" y="366.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="1245,495.0 1301.0,495.0 1301.0,495.0 1325,495.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="1276.0" y="486.0" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="1301.0" y="499.0" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="375,217.0 616.5,217.0 616.5,792.0 890,792.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="591.5" y="495.5" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="616.5" y="508.5" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="375,465.0 624.5,465.0 624.5,792.0 890,792.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="599.5" y="619.5" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="624.5" y="632.5" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<polyline points="810,607.0 850.0,607.0 850.0,792.0 890,792.0" fill="none" stroke="#4f4d6b" stroke-width="2"/>
+<rect x="825.0" y="690.5" width="50" height="18" rx="4" fill="#1b1a29" stroke="#4f4d6b"/>
+<text x="850.0" y="703.5" fill="#c4b5fd" font-size="10" text-anchor="middle">1 : N</text>
+<rect x="40" y="110" width="335" height="214" rx="10" fill="#1b1a29" stroke="#6d4aff" stroke-width="2"/>
+<rect x="40" y="110" width="335" height="34" rx="10" fill="#6d4aff"/>
+<text x="52" y="132" fill="#ffffff" font-size="14" font-weight="700">Users</text>
+<text x="52" y="164" fill="#e4e4f0" font-size="11">[PK] user_id</text>
+<text x="363" y="164" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="52" y="188" fill="#e4e4f0" font-size="11">[UQ] username</text>
+<text x="363" y="188" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(50)</text>
+<text x="52" y="212" fill="#e4e4f0" font-size="11">[UQ] email</text>
+<text x="363" y="212" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(100)</text>
+<text x="52" y="236" fill="#e4e4f0" font-size="11">password_hash</text>
+<text x="363" y="236" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(255)</text>
+<text x="52" y="260" fill="#e4e4f0" font-size="11">full_name</text>
+<text x="363" y="260" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(100)</text>
+<text x="52" y="284" fill="#e4e4f0" font-size="11">role</text>
+<text x="363" y="284" fill="#9ca3af" font-size="10.5" text-anchor="end">ENUM(user,creator,admin)</text>
+<text x="52" y="308" fill="#e4e4f0" font-size="11">created_at</text>
+<text x="363" y="308" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<rect x="40" y="370" width="335" height="190" rx="10" fill="#1b1a29" stroke="#6d4aff" stroke-width="2"/>
+<rect x="40" y="370" width="335" height="34" rx="10" fill="#6d4aff"/>
+<text x="52" y="392" fill="#ffffff" font-size="14" font-weight="700">Creators</text>
+<text x="52" y="424" fill="#e4e4f0" font-size="11">[PK] creator_id</text>
+<text x="363" y="424" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="52" y="448" fill="#e4e4f0" font-size="11">[FK,UQ] user_id</text>
+<text x="363" y="448" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Users</text>
+<text x="52" y="472" fill="#e4e4f0" font-size="11">display_name</text>
+<text x="363" y="472" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(100)</text>
+<text x="52" y="496" fill="#e4e4f0" font-size="11">bio</text>
+<text x="363" y="496" fill="#9ca3af" font-size="10.5" text-anchor="end">TEXT</text>
+<text x="52" y="520" fill="#e4e4f0" font-size="11">verified</text>
+<text x="363" y="520" fill="#9ca3af" font-size="10.5" text-anchor="end">BOOLEAN</text>
+<text x="52" y="544" fill="#e4e4f0" font-size="11">created_at</text>
+<text x="363" y="544" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<rect x="40" y="620" width="335" height="190" rx="10" fill="#1b1a29" stroke="#6d4aff" stroke-width="2"/>
+<rect x="40" y="620" width="335" height="34" rx="10" fill="#6d4aff"/>
+<text x="52" y="642" fill="#ffffff" font-size="14" font-weight="700">PodcastChannels</text>
+<text x="52" y="674" fill="#e4e4f0" font-size="11">[PK] channel_id</text>
+<text x="363" y="674" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="52" y="698" fill="#e4e4f0" font-size="11">[FK] creator_id</text>
+<text x="363" y="698" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Creators</text>
+<text x="52" y="722" fill="#e4e4f0" font-size="11">title</text>
+<text x="363" y="722" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(200)</text>
+<text x="52" y="746" fill="#e4e4f0" font-size="11">category</text>
+<text x="363" y="746" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(50)</text>
+<text x="52" y="770" fill="#e4e4f0" font-size="11">description</text>
+<text x="363" y="770" fill="#9ca3af" font-size="10.5" text-anchor="end">TEXT</text>
+<text x="52" y="794" fill="#e4e4f0" font-size="11">created_at</text>
+<text x="363" y="794" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<rect x="455" y="110" width="355" height="166" rx="10" fill="#1b1a29" stroke="#0d9488" stroke-width="2"/>
+<rect x="455" y="110" width="355" height="34" rx="10" fill="#0d9488"/>
+<text x="467" y="132" fill="#ffffff" font-size="14" font-weight="700">Subscriptions</text>
+<text x="467" y="164" fill="#e4e4f0" font-size="11">[PK] subscription_id</text>
+<text x="798" y="164" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="467" y="188" fill="#e4e4f0" font-size="11">[FK,UQ] user_id</text>
+<text x="798" y="188" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Users</text>
+<text x="467" y="212" fill="#e4e4f0" font-size="11">[FK,UQ] channel_id</text>
+<text x="798" y="212" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Channels</text>
+<text x="467" y="236" fill="#e4e4f0" font-size="11">subscribed_at</text>
+<text x="798" y="236" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<text x="467" y="260" fill="#e4e4f0" font-size="11">notify_enabled</text>
+<text x="798" y="260" fill="#9ca3af" font-size="10.5" text-anchor="end">BOOLEAN</text>
+<rect x="455" y="290" width="355" height="190" rx="10" fill="#1b1a29" stroke="#0d9488" stroke-width="2"/>
+<rect x="455" y="290" width="355" height="34" rx="10" fill="#0d9488"/>
+<text x="467" y="312" fill="#ffffff" font-size="14" font-weight="700">ListeningHistory</text>
+<text x="467" y="344" fill="#e4e4f0" font-size="11">[PK] history_id</text>
+<text x="798" y="344" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="467" y="368" fill="#e4e4f0" font-size="11">[FK] user_id</text>
+<text x="798" y="368" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Users</text>
+<text x="467" y="392" fill="#e4e4f0" font-size="11">[FK] episode_id</text>
+<text x="798" y="392" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Episodes</text>
+<text x="467" y="416" fill="#e4e4f0" font-size="11">[CHK] last_position_sec</text>
+<text x="798" y="416" fill="#9ca3af" font-size="10.5" text-anchor="end">INT (>= 0)</text>
+<text x="467" y="440" fill="#e4e4f0" font-size="11">is_completed</text>
+<text x="798" y="440" fill="#9ca3af" font-size="10.5" text-anchor="end">BOOLEAN</text>
+<text x="467" y="464" fill="#e4e4f0" font-size="11">listened_at</text>
+<text x="798" y="464" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<rect x="455" y="500" width="355" height="214" rx="10" fill="#1b1a29" stroke="#6d4aff" stroke-width="2"/>
+<rect x="455" y="500" width="355" height="34" rx="10" fill="#6d4aff"/>
+<text x="467" y="522" fill="#ffffff" font-size="14" font-weight="700">Episodes</text>
+<text x="467" y="554" fill="#e4e4f0" font-size="11">[PK] episode_id</text>
+<text x="798" y="554" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="467" y="578" fill="#e4e4f0" font-size="11">[FK] channel_id</text>
+<text x="798" y="578" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Channels</text>
+<text x="467" y="602" fill="#e4e4f0" font-size="11">title</text>
+<text x="798" y="602" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(255)</text>
+<text x="467" y="626" fill="#e4e4f0" font-size="11">audio_url</text>
+<text x="798" y="626" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(255)</text>
+<text x="467" y="650" fill="#e4e4f0" font-size="11">[CHK] duration_seconds</text>
+<text x="798" y="650" fill="#9ca3af" font-size="10.5" text-anchor="end">INT (> 0)</text>
+<text x="467" y="674" fill="#e4e4f0" font-size="11">status</text>
+<text x="798" y="674" fill="#9ca3af" font-size="10.5" text-anchor="end">ENUM(draft,pub,arch)</text>
+<text x="467" y="698" fill="#e4e4f0" font-size="11">published_at</text>
+<text x="798" y="698" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<rect x="455" y="745" width="355" height="190" rx="10" fill="#1b1a29" stroke="#0d9488" stroke-width="2"/>
+<rect x="455" y="745" width="355" height="34" rx="10" fill="#0d9488"/>
+<text x="467" y="767" fill="#ffffff" font-size="14" font-weight="700">Ratings</text>
+<text x="467" y="799" fill="#e4e4f0" font-size="11">[PK] rating_id</text>
+<text x="798" y="799" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="467" y="823" fill="#e4e4f0" font-size="11">[FK,UQ] user_id</text>
+<text x="798" y="823" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Users</text>
+<text x="467" y="847" fill="#e4e4f0" font-size="11">[FK,UQ] episode_id</text>
+<text x="798" y="847" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Episodes</text>
+<text x="467" y="871" fill="#e4e4f0" font-size="11">[CHK] score</text>
+<text x="798" y="871" fill="#9ca3af" font-size="10.5" text-anchor="end">TINYINT (1..5)</text>
+<text x="467" y="895" fill="#e4e4f0" font-size="11">comment</text>
+<text x="798" y="895" fill="#9ca3af" font-size="10.5" text-anchor="end">TEXT</text>
+<text x="467" y="919" fill="#e4e4f0" font-size="11">created_at</text>
+<text x="798" y="919" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<rect x="890" y="110" width="355" height="238" rx="10" fill="#1b1a29" stroke="#d97706" stroke-width="2"/>
+<rect x="890" y="110" width="355" height="34" rx="10" fill="#d97706"/>
+<text x="902" y="132" fill="#ffffff" font-size="14" font-weight="700">AdContracts</text>
+<text x="902" y="164" fill="#e4e4f0" font-size="11">[PK] contract_id</text>
+<text x="1233" y="164" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="902" y="188" fill="#e4e4f0" font-size="11">[FK] ad_id</text>
+<text x="1233" y="188" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Ads</text>
+<text x="902" y="212" fill="#e4e4f0" font-size="11">[FK] creator_id</text>
+<text x="1233" y="212" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Creators</text>
+<text x="902" y="236" fill="#e4e4f0" font-size="11">[UQ] contract_code</text>
+<text x="1233" y="236" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(50)</text>
+<text x="902" y="260" fill="#e4e4f0" font-size="11">[CHK] contract_value</text>
+<text x="1233" y="260" fill="#9ca3af" font-size="10.5" text-anchor="end">DECIMAL(12,2)</text>
+<text x="902" y="284" fill="#e4e4f0" font-size="11">cpm_rate</text>
+<text x="1233" y="284" fill="#9ca3af" font-size="10.5" text-anchor="end">DECIMAL(10,2)</text>
+<text x="902" y="308" fill="#e4e4f0" font-size="11">[CHK] start_date / end_date</text>
+<text x="1233" y="308" fill="#9ca3af" font-size="10.5" text-anchor="end">DATE</text>
+<text x="902" y="332" fill="#e4e4f0" font-size="11">status</text>
+<text x="1233" y="332" fill="#9ca3af" font-size="10.5" text-anchor="end">ENUM</text>
+<rect x="890" y="400" width="355" height="190" rx="10" fill="#1b1a29" stroke="#d97706" stroke-width="2"/>
+<rect x="890" y="400" width="355" height="34" rx="10" fill="#d97706"/>
+<text x="902" y="422" fill="#ffffff" font-size="14" font-weight="700">AdSlots</text>
+<text x="902" y="454" fill="#e4e4f0" font-size="11">[PK] slot_id</text>
+<text x="1233" y="454" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="902" y="478" fill="#e4e4f0" font-size="11">[FK,UQ] contract_id</text>
+<text x="1233" y="478" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> AdContracts</text>
+<text x="902" y="502" fill="#e4e4f0" font-size="11">[FK,UQ] episode_id</text>
+<text x="1233" y="502" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Episodes</text>
+<text x="902" y="526" fill="#e4e4f0" font-size="11">[UQ] slot_position</text>
+<text x="1233" y="526" fill="#9ca3af" font-size="10.5" text-anchor="end">ENUM(pre,mid,post)</text>
+<text x="902" y="550" fill="#e4e4f0" font-size="11">[CHK] start_offset_sec</text>
+<text x="1233" y="550" fill="#9ca3af" font-size="10.5" text-anchor="end">INT (>= 0)</text>
+<text x="902" y="574" fill="#e4e4f0" font-size="11">status</text>
+<text x="1233" y="574" fill="#9ca3af" font-size="10.5" text-anchor="end">ENUM</text>
+<rect x="890" y="685" width="355" height="214" rx="10" fill="#1b1a29" stroke="#d97706" stroke-width="2"/>
+<rect x="890" y="685" width="355" height="34" rx="10" fill="#d97706"/>
+<text x="902" y="707" fill="#ffffff" font-size="14" font-weight="700">Donations</text>
+<text x="902" y="739" fill="#e4e4f0" font-size="11">[PK] donation_id</text>
+<text x="1233" y="739" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="902" y="763" fill="#e4e4f0" font-size="11">[FK] donor_user_id</text>
+<text x="1233" y="763" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Users</text>
+<text x="902" y="787" fill="#e4e4f0" font-size="11">[FK] creator_id</text>
+<text x="1233" y="787" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Creators</text>
+<text x="902" y="811" fill="#e4e4f0" font-size="11">[FK] episode_id</text>
+<text x="1233" y="811" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> Episodes</text>
+<text x="902" y="835" fill="#e4e4f0" font-size="11">[CHK] amount</text>
+<text x="1233" y="835" fill="#9ca3af" font-size="10.5" text-anchor="end">DECIMAL(12,2) (>0)</text>
+<text x="902" y="859" fill="#e4e4f0" font-size="11">message</text>
+<text x="1233" y="859" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(255)</text>
+<text x="902" y="883" fill="#e4e4f0" font-size="11">donated_at</text>
+<text x="1233" y="883" fill="#9ca3af" font-size="10.5" text-anchor="end">DATETIME</text>
+<rect x="1325" y="110" width="355" height="190" rx="10" fill="#1b1a29" stroke="#d97706" stroke-width="2"/>
+<rect x="1325" y="110" width="355" height="34" rx="10" fill="#d97706"/>
+<text x="1337" y="132" fill="#ffffff" font-size="14" font-weight="700">Advertisements</text>
+<text x="1337" y="164" fill="#e4e4f0" font-size="11">[PK] ad_id</text>
+<text x="1668" y="164" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="1337" y="188" fill="#e4e4f0" font-size="11">advertiser_name</text>
+<text x="1668" y="188" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(150)</text>
+<text x="1337" y="212" fill="#e4e4f0" font-size="11">title</text>
+<text x="1668" y="212" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(200)</text>
+<text x="1337" y="236" fill="#e4e4f0" font-size="11">[CHK] duration_seconds</text>
+<text x="1668" y="236" fill="#9ca3af" font-size="10.5" text-anchor="end">INT (> 0)</text>
+<text x="1337" y="260" fill="#e4e4f0" font-size="11">target_url</text>
+<text x="1668" y="260" fill="#9ca3af" font-size="10.5" text-anchor="end">VARCHAR(255)</text>
+<text x="1337" y="284" fill="#e4e4f0" font-size="11">status</text>
+<text x="1668" y="284" fill="#9ca3af" font-size="10.5" text-anchor="end">ENUM(active,paused)</text>
+<rect x="1325" y="400" width="355" height="190" rx="10" fill="#1b1a29" stroke="#d97706" stroke-width="2"/>
+<rect x="1325" y="400" width="355" height="34" rx="10" fill="#d97706"/>
+<text x="1337" y="422" fill="#ffffff" font-size="14" font-weight="700">AdRevenue</text>
+<text x="1337" y="454" fill="#e4e4f0" font-size="11">[PK] revenue_id</text>
+<text x="1668" y="454" fill="#9ca3af" font-size="10.5" text-anchor="end">INT AI</text>
+<text x="1337" y="478" fill="#e4e4f0" font-size="11">[FK] contract_id</text>
+<text x="1668" y="478" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> AdContracts</text>
+<text x="1337" y="502" fill="#e4e4f0" font-size="11">[FK] slot_id</text>
+<text x="1668" y="502" fill="#9ca3af" font-size="10.5" text-anchor="end">INT -> AdSlots</text>
+<text x="1337" y="526" fill="#e4e4f0" font-size="11">revenue_date</text>
+<text x="1668" y="526" fill="#9ca3af" font-size="10.5" text-anchor="end">DATE</text>
+<text x="1337" y="550" fill="#e4e4f0" font-size="11">[CHK] impressions</text>
+<text x="1668" y="550" fill="#9ca3af" font-size="10.5" text-anchor="end">INT (>= 0)</text>
+<text x="1337" y="574" fill="#e4e4f0" font-size="11">[CHK] amount</text>
+<text x="1668" y="574" fill="#9ca3af" font-size="10.5" text-anchor="end">DECIMAL(12,2)</text>
+</svg>
