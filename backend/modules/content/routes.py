@@ -527,6 +527,21 @@ def update_episode(episode_id: int):
     description = data.get("description", existing["description"])
     audio_url = str(data.get("audio_url") or existing["audio_url"]).strip()
     duration_seconds = int(data.get("duration_seconds", existing["duration_seconds"]))
+    if duration_seconds <= 0:
+        raise AppError("Thời lượng tập phải lớn hơn 0.", status_code=400)
+
+    # Rule 4: Không cho giảm thời lượng Episode xuống < 20 phút nếu đã gắn > 3 hợp đồng quảng cáo
+    if duration_seconds < 1200 and existing["duration_seconds"] >= 1200:
+        slot_stats = db.fetch_one(
+            "SELECT COUNT(DISTINCT contract_id) AS distinct_contracts FROM AdSlots WHERE episode_id = %s",
+            (episode_id,),
+        )
+        if slot_stats and slot_stats["distinct_contracts"] > 3:
+            raise AppError(
+                "Không thể giảm thời lượng Episode xuống dưới 20 phút vì đã có hơn 3 hợp đồng quảng cáo.",
+                status_code=400,
+            )
+
     status = str(data.get("status", existing["status"])).strip().lower()
     if status not in ("draft", "published", "archived"):
         raise AppError("Trạng thái episode không hợp lệ.", status_code=400)

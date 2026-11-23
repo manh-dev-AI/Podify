@@ -195,7 +195,7 @@ def list_slots():
 @analytics_bp.post("/slots")
 @roles_required("creator", "admin")
 def create_slot():
-    """Assign an ad contract to an episode slot (MySQL Trigger enforces <=3 contracts for <20m episodes)."""
+    """Assign an ad contract to an episode slot (business rules enforced in Backend)."""
     user = get_current_user()
     data = _json_body()
     _require_fields(data, "contract_id", "episode_id")
@@ -209,20 +209,52 @@ def create_slot():
     offset = int(data.get("start_offset_seconds", 0))
     status = str(data.get("status", "active")).strip().lower()
 
-    if user["role"] != "admin":
-        ep_owner = db.fetch_one(
+    ep_info = db.fetch_one(
+        """
+        SELECT e.duration_seconds, ch.creator_id
+        FROM Episodes e
+        INNER JOIN PodcastChannels ch ON e.channel_id = ch.channel_id
+        WHERE e.episode_id = %s
+        """,
+        (episode_id,),
+    )
+    if not ep_info:
+        raise AppError("Episode không tồn tại.", status_code=404)
+
+    if user["role"] != "admin" and ep_info["creator_id"] != user.get("creator_id"):
+        raise AppError("Bạn không có quyền gắn quảng cáo vào Episode của Creator khác.", status_code=403)
+
+    contract_info = db.fetch_one(
+        "SELECT contract_id, creator_id FROM AdContracts WHERE contract_id = %s",
+        (contract_id,),
+    )
+    if not contract_info:
+        raise AppError("Hợp đồng quảng cáo không tồn tại.", status_code=404)
+
+    # Rule 1: Hợp đồng quảng cáo phải thuộc cùng Creator với Episode
+    if ep_info["creator_id"] != contract_info["creator_id"]:
+        raise AppError("Hợp đồng quảng cáo chỉ được gắn vào Episode thuộc cùng Creator.", status_code=400)
+
+    # Rule 2: Thời điểm chèn quảng cáo không âm và không vượt quá thời lượng Episode
+    if offset < 0 or offset > ep_info["duration_seconds"]:
+        raise AppError("Vị trí quảng cáo (start_offset_seconds) vượt quá thời lượng Episode.", status_code=400)
+
+    # Rule 3: Episode dưới 20 phút (< 1200s) chỉ được gắn tối đa 3 hợp đồng khác nhau
+    if ep_info["duration_seconds"] < 1200:
+        slot_stats = db.fetch_one(
             """
-            SELECT ch.creator_id
-            FROM Episodes e
-            INNER JOIN PodcastChannels ch ON e.channel_id = ch.channel_id
-            WHERE e.episode_id = %s
+            SELECT COUNT(DISTINCT contract_id) AS distinct_contracts,
+                   COALESCE(MAX(CASE WHEN contract_id = %s THEN 1 ELSE 0 END), 0) AS already_attached
+            FROM AdSlots
+            WHERE episode_id = %s
             """,
-            (episode_id,),
+            (contract_id, episode_id),
         )
-        if not ep_owner:
-            raise AppError("Episode không tồn tại.", status_code=404)
-        if ep_owner["creator_id"] != user.get("creator_id"):
-            raise AppError("Bạn không có quyền gắn quảng cáo vào Episode của Creator khác.", status_code=403)
+        if slot_stats and slot_stats["already_attached"] == 0 and slot_stats["distinct_contracts"] >= 3:
+            raise AppError(
+                "Episode dưới 20 phút (< 1200s) chỉ được gắn tối đa 3 hợp đồng quảng cáo.",
+                status_code=400,
+            )
 
     _, slot_id = db.execute(
         """

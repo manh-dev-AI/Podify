@@ -148,14 +148,14 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
             )
             self.assertEqual(res.status_code, 400)
 
-    def test_trigger_error_returns_400_with_message(self):
+    def test_ad_slot_limit_blocks_4th_contract_under_20m(self):
         with patch("common.auth.load_user_with_creator", return_value=self.creator_user), patch(
-            "config.db.fetch_one", return_value={"creator_id": 1}
-        ), patch(
-            "config.db.execute",
-            side_effect=DatabaseTriggerError(
-                "Business Rule Violation: Episode duoi 20 phut (< 1200s) chi duoc gan toi da 3 hop dong quang cao."
-            ),
+            "config.db.fetch_one",
+            side_effect=[
+                {"duration_seconds": 600, "creator_id": 1},
+                {"contract_id": 4, "creator_id": 1},
+                {"distinct_contracts": 3, "already_attached": 0},
+            ],
         ):
             res = self.client.post(
                 "/api/analytics/slots",
@@ -164,8 +164,31 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
             )
             self.assertEqual(res.status_code, 400)
             body = res.get_json()
-            self.assertEqual(body["code"], "DB_TRIGGER_VIOLATION")
-            self.assertIn("toi da 3 hop dong", body["error"])
+            self.assertIn("tối đa 3 hợp đồng", body["error"])
+
+    def test_update_episode_blocks_shrinking_duration_with_over_3_contracts(self):
+        with patch("common.auth.load_user_with_creator", return_value=self.creator_user), patch(
+            "config.db.fetch_one",
+            side_effect=[
+                {
+                    "episode_id": 4,
+                    "title": "Ep 4",
+                    "description": None,
+                    "audio_url": "/assets/audio/sample_4.mp3",
+                    "duration_seconds": 2400,
+                    "status": "published",
+                    "creator_id": 1,
+                },
+                {"distinct_contracts": 4},
+            ],
+        ):
+            res = self.client.put(
+                "/api/content/episodes/4",
+                headers={"Authorization": f"Bearer {self.creator_token}"},
+                json={"duration_seconds": 900},
+            )
+            self.assertEqual(res.status_code, 400)
+            self.assertIn("hơn 3 hợp đồng quảng cáo", res.get_json()["error"])
 
     def test_query_runner_endpoints_q1_to_q8(self):
         res_list = self.client.get("/api/analytics/reports/queries")

@@ -7,19 +7,14 @@
 
 USE podify_db;
 
-SET @target_year = YEAR(CURDATE());
-SET @target_month = MONTH(CURDATE());
-
-SELECT
+SELECT 
     c.channel_id,
-    c.title AS channel_title,
-    c.category,
-    MAX(CONCAT(@target_year, '-', LPAD(@target_month, 2, '0'))) AS report_month,
-    COUNT(s.subscription_id) AS new_subscribers_count
+    c.title,
+    COUNT(s.subscription_id) AS new_subscribers
 FROM PodcastChannels c
-LEFT JOIN Subscriptions s
+LEFT JOIN Subscriptions s 
     ON c.channel_id = s.channel_id
-   AND YEAR(s.subscribed_at) = @target_year
-   AND MONTH(s.subscribed_at) = @target_month
-GROUP BY c.channel_id, c.title, c.category
-ORDER BY new_subscribers_count DESC, c.channel_id ASC;
+    AND MONTH(s.subscribed_at) = MONTH(CURDATE())
+    AND YEAR(s.subscribed_at) = YEAR(CURDATE())
+GROUP BY c.channel_id, c.title
+ORDER BY new_subscribers DESC;

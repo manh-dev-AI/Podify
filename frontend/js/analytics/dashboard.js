@@ -134,9 +134,9 @@ const PodifyAnalytics = (() => {
 
     return `
       <div class="trigger-alert">
-        <strong>Kiểm chứng MySQL Trigger (TRG_AdSlots_Limit_Contracts_BI):</strong>
+        <strong>Kiểm chứng quy tắc nghiệp vụ (Backend Validation):</strong>
         Mỗi Episode có thời lượng <strong>&lt; 20 phút (&lt; 1200s)</strong> chỉ được gắn tối đa <strong>3 hợp đồng quảng cáo</strong>.
-        Hiện Episode #3 (<em>Tập 3: SELECT nâng cao — 600s</em>) đã có đủ 3/3 hợp đồng. Hãy thử gắn thêm hợp đồng #4 (<code>CTR-2026-004</code>) để xem MySQL Trigger chặn ngay tại tầng CSDL!
+        Hiện Episode #3 (<em>Tập 3: SELECT nâng cao — 600s</em>) đã có đủ 3/3 hợp đồng. Hãy thử gắn thêm hợp đồng #4 (<code>CTR-2026-004</code>) để xem hệ thống Backend chặn và báo lỗi ngay!
       </div>
 
       ${
@@ -404,7 +404,7 @@ const PodifyAnalytics = (() => {
         <div class="page-header">
           <div>
             <h1>Advertisement &amp; Business Analytics (Module 03)</h1>
-            <p>Quản lý quảng cáo, hợp đồng, AdSlots (MySQL Trigger), Donation và 8 câu truy vấn phân tích Q1–Q8.</p>
+            <p>Quản lý quảng cáo, hợp đồng, AdSlots (giới hạn 3 hợp đồng &lt; 20p), Donation và 8 câu truy vấn phân tích Q1–Q8.</p>
           </div>
         </div>
 

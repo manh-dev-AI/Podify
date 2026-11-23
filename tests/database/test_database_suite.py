@@ -35,7 +35,7 @@ def _read(rel_path: str) -> str:
 
 
 class TestDatabaseArtifactsStatic(unittest.TestCase):
-    """Static verification of SQL scripts, schema completeness, triggers, and Q1..Q8."""
+    """Static verification of SQL scripts, schema completeness, and Q1..Q8."""
 
     def test_full_schema_defines_all_12_tables(self):
         schema_sql = _read("database/schema/full_schema.sql")
@@ -49,20 +49,6 @@ class TestDatabaseArtifactsStatic(unittest.TestCase):
         combined = "\n".join([s1, s2, s3])
         created = re.findall(r"CREATE TABLE\s+(\w+)\s*\(", combined, flags=re.IGNORECASE)
         self.assertEqual(created, EXPECTED_TABLES)
-
-    def test_triggers_script_contains_all_three_triggers(self):
-        trg_sql = _read("database/triggers/01_ad_contract_limit.sql")
-        triggers = re.findall(r"CREATE TRIGGER\s+(\w+)", trg_sql, flags=re.IGNORECASE)
-        self.assertEqual(
-            triggers,
-            [
-                "TRG_AdSlots_Limit_Contracts_BI",
-                "TRG_AdSlots_Limit_Contracts_BU",
-                "TRG_Episodes_Duration_Limit_BU",
-            ],
-        )
-        stmts = split_sql_statements(trg_sql)
-        self.assertGreaterEqual(len(stmts), 7)  # USE + 3 DROPs + 3 CREATE TRIGGERs
 
     def test_seed_scripts_populate_all_tables(self):
         seed_sql = _read("database/seed/full_seed.sql")
@@ -118,30 +104,6 @@ class TestLiveMySQLDatabase(unittest.TestCase):
         cur.close()
         for t in EXPECTED_TABLES:
             self.assertIn(t.lower(), tables)
-
-    def test_trigger_blocks_4th_contract_on_under_20m_episode(self):
-        import mysql.connector
-
-        cur = self.conn.cursor()
-        # Episode 3 is 600s (< 20m) and already has contracts 1, 2, 3 in seed
-        with self.assertRaises(mysql.connector.Error) as ctx:
-            cur.execute(
-                "INSERT INTO AdSlots (contract_id, episode_id, slot_position, start_offset_seconds) VALUES (4, 3, 'mid-roll', 150)"
-            )
-        self.assertEqual(ctx.exception.errno, 1644)
-        self.conn.rollback()
-        cur.close()
-
-    def test_trigger_blocks_shrinking_episode_duration_with_4_contracts(self):
-        import mysql.connector
-
-        cur = self.conn.cursor()
-        # Episode 4 is 2400s and has 4 contracts attached in seed
-        with self.assertRaises(mysql.connector.Error) as ctx:
-            cur.execute("UPDATE Episodes SET duration_seconds = 900 WHERE episode_id = 4")
-        self.assertEqual(ctx.exception.errno, 1644)
-        self.conn.rollback()
-        cur.close()
 
     def test_unique_and_check_constraints(self):
         import mysql.connector

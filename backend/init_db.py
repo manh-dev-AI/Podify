@@ -1,4 +1,4 @@
-"""Initialize or reset the Podify MySQL database (schema, triggers, and seed data)."""
+"""Initialize or reset the Podify MySQL database (schema and seed data)."""
 
 import os
 import sys
@@ -8,7 +8,6 @@ from config.settings import Settings
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SCHEMA_FILE = os.path.join(ROOT_DIR, "database", "schema", "full_schema.sql")
-TRIGGER_FILE = os.path.join(ROOT_DIR, "database", "triggers", "01_ad_contract_limit.sql")
 SEED_FILE = os.path.join(ROOT_DIR, "database", "seed", "full_seed.sql")
 
 
@@ -66,7 +65,7 @@ def run_sql_file(cursor, path: str) -> int:
 
 
 def init_database(with_seed: bool = True) -> None:
-    """Connect to MySQL server and apply schema, triggers, and optional seed data."""
+    """Connect to MySQL server and apply schema and optional seed data."""
     conn = mysql.connector.connect(
         host=Settings.DB_HOST,
         port=Settings.DB_PORT,
@@ -80,9 +79,6 @@ def init_database(with_seed: bool = True) -> None:
         cur = conn.cursor()
         n_schema = run_sql_file(cur, SCHEMA_FILE)
         print(f"[OK] Schema applied ({n_schema} statements) from {SCHEMA_FILE}")
-
-        n_trig = run_sql_file(cur, TRIGGER_FILE)
-        print(f"[OK] Triggers applied ({n_trig} statements) from {TRIGGER_FILE}")
 
         if with_seed:
             n_seed = run_sql_file(cur, SEED_FILE)
