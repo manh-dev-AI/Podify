@@ -465,18 +465,15 @@ def list_donations():
         SELECT d.ma_ung_ho AS donation_id,
                d.ma_nguoi_ung_ho AS donor_user_id,
                d.ma_creator AS creator_id,
-               d.ma_tap AS episode_id,
                d.so_tien_ung_ho AS amount,
                d.loi_nhan AS message,
                d.ngay_ung_ho AS donated_at,
                u.ten_dang_nhap AS donor_username,
                u.ho_ten AS donor_name,
-               cr.ten_hien_thi AS creator_name,
-               e.tieu_de_tap AS episode_title
+               cr.ten_hien_thi AS creator_name
         FROM UngHo d
         JOIN NguoiDung u ON d.ma_nguoi_ung_ho = u.ma_nguoi_dung
         JOIN NhaSangTao cr ON d.ma_creator = cr.ma_creator
-        LEFT JOIN TapPodcast e ON d.ma_tap = e.ma_tap
         ORDER BY d.ngay_ung_ho DESC, d.ma_ung_ho DESC
         """
     )
@@ -497,14 +494,13 @@ def create_donation():
     donation_id = db.next_id("UH", "UngHo", "ma_ung_ho")
     db.execute(
         """
-        INSERT INTO UngHo (ma_ung_ho, ma_nguoi_ung_ho, ma_creator, ma_tap, so_tien_ung_ho, loi_nhan)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO UngHo (ma_ung_ho, ma_nguoi_ung_ho, ma_creator, so_tien_ung_ho, loi_nhan)
+        VALUES (%s, %s, %s, %s, %s)
         """,
         (
             donation_id,
             user["user_id"],
             str(data["creator_id"]).strip(),
-            str(data["episode_id"]).strip() if data.get("episode_id") else None,
             amount,
             str(data.get("message") or "").strip() or None,
         ),
@@ -512,14 +508,13 @@ def create_donation():
     row = db.fetch_one(
         """
         SELECT d.ma_ung_ho AS donation_id, d.ma_nguoi_ung_ho AS donor_user_id,
-               d.ma_creator AS creator_id, d.ma_tap AS episode_id,
+               d.ma_creator AS creator_id,
                d.so_tien_ung_ho AS amount, d.loi_nhan AS message, d.ngay_ung_ho AS donated_at,
                u.ten_dang_nhap AS donor_username, u.ho_ten AS donor_name,
-               cr.ten_hien_thi AS creator_name, e.tieu_de_tap AS episode_title
+               cr.ten_hien_thi AS creator_name
         FROM UngHo d
         JOIN NguoiDung u ON d.ma_nguoi_ung_ho = u.ma_nguoi_dung
         JOIN NhaSangTao cr ON d.ma_creator = cr.ma_creator
-        LEFT JOIN TapPodcast e ON d.ma_tap = e.ma_tap
         WHERE d.ma_ung_ho = %s
         """,
         (donation_id,),

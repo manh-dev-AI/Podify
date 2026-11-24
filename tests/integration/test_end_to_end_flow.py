@@ -79,7 +79,7 @@ class TestCrossModuleIntegration(unittest.TestCase):
             res_don = self.client.post(
                 "/api/analytics/donations",
                 headers={"Authorization": f"Bearer {self.user_token}"},
-                json={"creator_id": "NST0001", "episode_id": "EP0030", "amount": 100000, "message": "Great episode!"},
+                json={"creator_id": "NST0001", "amount": 100000, "message": "Great episode!"},
             )
             self.assertEqual(res_don.status_code, 201)
 
@@ -155,7 +155,7 @@ class TestCrossModuleLiveMySQL(unittest.TestCase):
             self.client.post(
                 "/api/analytics/donations",
                 headers={"Authorization": f"Bearer {u_token}"},
-                json={"creator_id": "NST0001", "episode_id": ep_id, "amount": 50000},
+                json={"creator_id": "NST0001", "amount": 50000},
             ).status_code,
             201,
         )

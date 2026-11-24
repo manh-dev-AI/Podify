@@ -135,7 +135,6 @@ CREATE TABLE UngHo (
     ma_ung_ho VARCHAR(10) PRIMARY KEY,
     ma_nguoi_ung_ho VARCHAR(10) NOT NULL,
     ma_creator VARCHAR(10) NOT NULL,
-    ma_tap VARCHAR(10) NULL,
     so_tien_ung_ho DECIMAL(12, 0) NOT NULL CHECK (so_tien_ung_ho > 0),
     loi_nhan VARCHAR(255) NULL,
     ngay_ung_ho DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -143,9 +142,7 @@ CREATE TABLE UngHo (
     FOREIGN KEY (ma_nguoi_ung_ho)
         REFERENCES NguoiDung(ma_nguoi_dung) ON DELETE CASCADE,
     FOREIGN KEY (ma_creator)
-        REFERENCES NhaSangTao(ma_creator) ON DELETE CASCADE,
-    FOREIGN KEY (ma_tap)
-        REFERENCES TapPodcast(ma_tap) ON DELETE SET NULL
+        REFERENCES NhaSangTao(ma_creator) ON DELETE CASCADE
 );
 
 -- 10. BANG QUANG CAO (Ma: QC0001..)

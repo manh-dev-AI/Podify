@@ -55,8 +55,8 @@ class TestDatabaseArtifactsStatic(unittest.TestCase):
         self.assertGreaterEqual(select_count, 8)
 
     def test_erd_files_exist(self):
-        self.assertTrue(os.path.isfile(os.path.join(ROOT_DIR, "database", "erd", "podify_erd.png")))
-        self.assertTrue(os.path.isfile(os.path.join(ROOT_DIR, "database", "erd", "podify_erd.svg")))
+        self.assertTrue(os.path.isfile(os.path.join(ROOT_DIR, "database", "erd", "BTL_DB.drawio")))
+        self.assertTrue(os.path.isfile(os.path.join(ROOT_DIR, "database", "erd", "BTL_DB.drawio.png")))
 
 
 @unittest.skipUnless(
