@@ -18,3 +18,5 @@ LEFT JOIN Subscriptions s
     AND YEAR(s.subscribed_at) = YEAR(CURDATE())
 GROUP BY c.channel_id, c.title
 ORDER BY new_subscribers DESC;
+
+-- from --> left --> group by --> select --> order 

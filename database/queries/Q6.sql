@@ -8,40 +8,24 @@
 USE podify_db;
 
 WITH EpisodeListens AS (
-    SELECT
-        e.episode_id,
-        e.channel_id,
-        c.title AS channel_title,
-        e.title AS episode_title,
-        COUNT(lh.history_id) AS listen_count
+    SELECT e.episode_id, e.channel_id, e.title,
+           COUNT(lh.history_id) AS listen_count
     FROM Episodes e
-    INNER JOIN PodcastChannels c ON e.channel_id = c.channel_id
-    LEFT JOIN ListeningHistory lh ON e.episode_id = lh.episode_id
-    GROUP BY e.episode_id, e.channel_id, c.title, e.title
+    LEFT JOIN ListeningHistory lh
+        ON e.episode_id = lh.episode_id
+    GROUP BY e.episode_id, e.channel_id, e.title
 ),
-ChannelPeerAverage AS (
-    SELECT
-        episode_id,
-        channel_id,
-        channel_title,
-        episode_title,
-        listen_count,
-        -- Trung bình của CÁC EPISODE KHÁC trong cùng Channel: (Tổng kênh - tập hiện tại) / (Số tập kênh - 1)
-        ROUND(
-            (SUM(listen_count) OVER (PARTITION BY channel_id) - listen_count)
-            / NULLIF(COUNT(*) OVER (PARTITION BY channel_id) - 1, 0),
-            2
-        ) AS avg_other_episodes_listens
+ChannelAverage AS (
+    SELECT *,
+        (SUM(listen_count) OVER (PARTITION BY channel_id)
+         - listen_count)
+        / NULLIF(
+            COUNT(*) OVER (PARTITION BY channel_id) - 1, 0
+        ) AS avg_other
     FROM EpisodeListens
 )
-SELECT
-    episode_id,
-    channel_id,
-    channel_title,
-    episode_title,
-    listen_count,
-    avg_other_episodes_listens
-FROM ChannelPeerAverage
-WHERE avg_other_episodes_listens IS NOT NULL
-  AND listen_count > avg_other_episodes_listens
+SELECT episode_id, channel_id, title,
+       listen_count, ROUND(avg_other, 2) AS avg_other
+FROM ChannelAverage
+WHERE listen_count > avg_other
 ORDER BY channel_id ASC, listen_count DESC;
