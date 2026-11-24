@@ -7,12 +7,11 @@
 
 USE podify_db;
 
-SELECT
-    e.episode_id,
-    e.title,
-    COUNT(lh.history_id) AS listen_count
+SELECT e.episode_id, e.title,
+       COUNT(lh.history_id) AS listen_count
 FROM Episodes e
-LEFT JOIN ListeningHistory lh
+LEFT OUTER JOIN ListeningHistory lh
     ON e.episode_id = lh.episode_id
+WHERE e.channel_id = 1
 GROUP BY e.episode_id, e.title
 ORDER BY listen_count DESC;
