@@ -49,7 +49,7 @@ CREATE TABLE NhaSangTao (
     ma_nguoi_dung INT NOT NULL UNIQUE,
     ten_hien_thi VARCHAR(100) NOT NULL,
     tieu_su TEXT NULL,
-    da_xac_minh BOOLEAN NOT NULL DEFAULT FALSE,
+    da_xac_minh BOOLEAN NOT NULL DEFAULT FALSE, -- giống kiểu tích xanh trên tiktok với fb
     ngay_tao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT FK_NhaSangTao_NguoiDung FOREIGN KEY (ma_nguoi_dung)
         REFERENCES NguoiDung(ma_nguoi_dung) ON DELETE CASCADE
