@@ -51,7 +51,7 @@ const PodifyContent = (() => {
         <div class="studio-card">
           <h3>Creator Studio (Tạo Kênh &amp; Tập Podcast)</h3>
           <p style="font-size:13px;color:var(--text-secondary);">
-            Đăng nhập bằng tài khoản <strong>Creator</strong> (ví dụ: <code>nguyenvan_a</code> hoặc <code>tranthi_b</code>) để tạo kênh Podcast, đăng tập mới hoặc quản lý nội dung của bạn.
+            Đăng nhập bằng tài khoản <strong>Creator</strong> (ví dụ: <code>manh_trithuc</code> hoặc <code>minh_ai</code>) để tạo kênh Podcast, đăng tập mới hoặc quản lý nội dung của bạn.
           </p>
           <div>
             <button class="btn-primary" onclick="PodifyUI.openAuthModal()">Đăng nhập tài khoản Creator</button>
@@ -61,7 +61,7 @@ const PodifyContent = (() => {
     }
 
     const myChannels = state.channels.filter(
-      (c) => user.role === 'admin' || Number(c.creator_id) === Number(user.creator_id)
+      (c) => user.role === 'admin' || String(c.creator_id) === String(user.creator_id)
     );
 
     return `
@@ -149,11 +149,11 @@ const PodifyContent = (() => {
     const esc = PodifyUI.escapeHtml;
 
     const visibleEpisodes = state.selectedChannelId
-      ? state.episodes.filter((e) => Number(e.channel_id) === Number(state.selectedChannelId))
+      ? state.episodes.filter((e) => String(e.channel_id) === String(state.selectedChannelId))
       : state.episodes;
 
     const selectedChannel = state.selectedChannelId
-      ? state.channels.find((c) => Number(c.channel_id) === Number(state.selectedChannelId))
+      ? state.channels.find((c) => String(c.channel_id) === String(state.selectedChannelId))
       : null;
 
     return `
@@ -219,13 +219,13 @@ const PodifyContent = (() => {
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                   <button class="btn-secondary" data-content-channel="${c.channel_id}">
-                    ${Number(state.selectedChannelId) === Number(c.channel_id) ? 'Đang lọc' : 'Xem tập'}
+                    ${String(state.selectedChannelId) === String(c.channel_id) ? 'Đang lọc' : 'Xem tập'}
                   </button>
                   <button class="${c.is_subscribed ? 'btn-secondary' : 'btn-primary'}"
                     data-act="toggle-sub-id" data-channel-id="${c.channel_id}" data-sub="${c.is_subscribed ? 1 : 0}">
                     ${c.is_subscribed ? 'Subscribed ✓' : '+ Subscribe'}
                   </button>
-                  <button class="btn-secondary" onclick="PodifyUI.openDonateModal(${c.creator_id})">Donate</button>
+                  <button class="btn-secondary" onclick="PodifyUI.openDonateModal('${esc(c.creator_id)}')">Donate</button>
                 </div>
               </div>`
               )
@@ -248,7 +248,7 @@ const PodifyContent = (() => {
                       const mins = Math.round(Number(e.duration_seconds) / 60);
                       const isUnder20 = Number(e.duration_seconds) < 1200;
                       const canDelete =
-                        user && (user.role === 'admin' || Number(user.creator_id) === Number(e.creator_id));
+                        user && (user.role === 'admin' || String(user.creator_id) === String(e.creator_id));
                       return `
                       <div class="data-row">
                         <div style="min-width:0;flex:1;">
@@ -305,7 +305,7 @@ const PodifyContent = (() => {
     container.querySelectorAll('[data-content-channel]').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const val = btn.dataset.contentChannel;
-        state.selectedChannelId = val ? Number(val) : null;
+        state.selectedChannelId = val ? String(val) : null;
         await onReload(false);
       });
     });
@@ -350,7 +350,7 @@ const PodifyContent = (() => {
         await PodifyUI.api('/api/content/episodes', {
           method: 'POST',
           body: {
-            channel_id: Number(fd.get('channel_id')),
+            channel_id: String(fd.get('channel_id') || ''),
             title: fd.get('title'),
             duration_seconds: Number(fd.get('duration_seconds')),
             audio_url: fd.get('audio_url'),
@@ -366,7 +366,7 @@ const PodifyContent = (() => {
   }
 
   function setSelectedChannel(channelId) {
-    state.selectedChannelId = channelId ? Number(channelId) : null;
+    state.selectedChannelId = channelId ? String(channelId) : null;
   }
 
   return { loadData, renderHTML, bindEvents, setSelectedChannel };

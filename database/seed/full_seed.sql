@@ -58,36 +58,36 @@ INSERT INTO KenhPodcast (ma_kenh, ma_creator, tieu_de_kenh, the_loai, mo_ta, anh
 
 -- 4. TapPodcast (30 dòng: EP0001 -> EP0029 + EP0099)
 INSERT INTO TapPodcast (ma_tap, ma_kenh, tieu_de_tap, thoi_luong_giay, duong_dan_audio, trang_thai, ngay_phat_hanh) VALUES
-('EP0001', 'KP0001', N'Tư duy hệ thống trong 20 phút', 1200, 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 30 DAY)),
-('EP0002', 'KP0001', N'Bí mật của trí nhớ dài hạn', 1500, 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 26 DAY)),
-('EP0003', 'KP0001', N'Nghệ thuật đặt câu hỏi phản biện', 1680, 'https://www.youtube.com/watch?v=H14bBuluwB8', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 22 DAY)),
-('EP0004', 'KP0001', N'3 thói quen đọc sách hiệu quả', 600, 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 18 DAY)),
-('EP0005', 'KP0001', N'Lịch sử khoa học hiện đại toàn tập', 2400, 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 14 DAY)),
-('EP0006', 'KP0001', N'Kỹ năng ghi chép thông minh (Mới đăng)', 1080, 'https://www.youtube.com/watch?v=aircAruvnKk', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('EP0007', 'KP0001', N'Tập trung sâu trong kỷ nguyên số (Mới đăng)', 1350, 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 0 DAY)),
-('EP0008', 'KP0002', N'Đọc vị tâm lý qua Tư Duy Nhanh và Chậm', 1400, 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 28 DAY)),
-('EP0009', 'KP0002', N'Bài học từ cuốn Atomic Habits', 1150, 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 20 DAY)),
-('EP0010', 'KP0002', N'Sapiens: Lược sử loài người phần 1', 2100, 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 12 DAY)),
-('EP0099', 'KP0003', N'EP99 - Kỷ nguyên AI Agent 2026', 1800, 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 15 DAY)),
-('EP0011', 'KP0003', N'Tập ngắn: Nhập môn SQL trong 15 phút', 900, 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 11 DAY)),
-('EP0012', 'KP0003', N'Mô hình ngôn ngữ lớn hoạt động ra sao', 1950, 'https://www.youtube.com/watch?v=H14bBuluwB8', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('EP0013', 'KP0003', N'Tự động hóa công việc với Python', 1320, 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 4 DAY)),
-('EP0014', 'KP0004', N'Chuẩn hóa 3NF từ bài toán thực tế', 1560, 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 25 DAY)),
-('EP0015', 'KP0004', N'Tối ưu truy vấn với Index trong MySQL', 1740, 'https://www.youtube.com/watch?v=aircAruvnKk', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 19 DAY)),
-('EP0016', 'KP0004', N'Thiết kế RESTful API chuẩn cho người mới', 1260, 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('EP0017', 'KP0005', N'Chuyện đêm mưa Sài Gòn', 1100, 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 24 DAY)),
-('EP0018', 'KP0005', N'Những lá thư chưa kịp gửi', 980, 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 16 DAY)),
-('EP0019', 'KP0006', N'Quản lý chi tiêu theo quy tắc 50-30-20', 1250, 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 27 DAY)),
-('EP0020', 'KP0006', N'Lạm phát ảnh hưởng thế nào tới sinh viên', 1480, 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 17 DAY)),
-('EP0021', 'KP0006', N'Quỹ dự phòng cá nhân cần bao nhiêu', 1020, 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('EP0022', 'KP0007', N'Tìm ý tưởng sản phẩm từ nỗi đau người dùng', 1620, 'https://www.youtube.com/watch?v=H14bBuluwB8', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 21 DAY)),
-('EP0023', 'KP0007', N'Sai lầm phổ biến khi làm MVP', 1380, 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 13 DAY)),
-('EP0024', 'KP0008', N'Vượt qua hội chứng kẻ mạo danh', 1440, 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 23 DAY)),
-('EP0025', 'KP0008', N'Giấc ngủ và hiệu suất học tập', 1180, 'https://www.youtube.com/watch?v=aircAruvnKk', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 15 DAY)),
-('EP0026', 'KP0008', N'Nghệ thuật lắng nghe chủ động', 1290, 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('EP0027', 'KP0009', N'Chiến thắng Bạch Đằng năm 938', 1700, 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 19 DAY)),
-('EP0028', 'KP0009', N'Thăng Long ngàn năm văn hiến', 1850, 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('EP0029', 'KP0010', N'Số thử nghiệm âm thanh ASMR', 780, 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 14 DAY));
+('EP0001', 'KP0001', N'Tư duy hệ thống trong 20 phút', 1200, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 30 DAY)),
+('EP0002', 'KP0001', N'Bí mật của trí nhớ dài hạn', 1500, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 26 DAY)),
+('EP0003', 'KP0001', N'Nghệ thuật đặt câu hỏi phản biện', 1680, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 22 DAY)),
+('EP0004', 'KP0001', N'3 thói quen đọc sách hiệu quả', 600, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 18 DAY)),
+('EP0005', 'KP0001', N'Lịch sử khoa học hiện đại toàn tập', 2400, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 14 DAY)),
+('EP0006', 'KP0001', N'Kỹ năng ghi chép thông minh (Mới đăng)', 1080, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('EP0007', 'KP0001', N'Tập trung sâu trong kỷ nguyên số (Mới đăng)', 1350, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 0 DAY)),
+('EP0008', 'KP0002', N'Đọc vị tâm lý qua Tư Duy Nhanh và Chậm', 1400, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 28 DAY)),
+('EP0009', 'KP0002', N'Bài học từ cuốn Atomic Habits', 1150, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 20 DAY)),
+('EP0010', 'KP0002', N'Sapiens: Lược sử loài người phần 1', 2100, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 12 DAY)),
+('EP0099', 'KP0003', N'EP99 - Kỷ nguyên AI Agent 2026', 1800, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 15 DAY)),
+('EP0011', 'KP0003', N'Tập ngắn: Nhập môn SQL trong 15 phút', 900, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 11 DAY)),
+('EP0012', 'KP0003', N'Mô hình ngôn ngữ lớn hoạt động ra sao', 1950, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('EP0013', 'KP0003', N'Tự động hóa công việc với Python', 1320, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('EP0014', 'KP0004', N'Chuẩn hóa 3NF từ bài toán thực tế', 1560, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 25 DAY)),
+('EP0015', 'KP0004', N'Tối ưu truy vấn với Index trong MySQL', 1740, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 19 DAY)),
+('EP0016', 'KP0004', N'Thiết kế RESTful API chuẩn cho người mới', 1260, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('EP0017', 'KP0005', N'Chuyện đêm mưa Sài Gòn', 1100, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 24 DAY)),
+('EP0018', 'KP0005', N'Những lá thư chưa kịp gửi', 980, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 16 DAY)),
+('EP0019', 'KP0006', N'Quản lý chi tiêu theo quy tắc 50-30-20', 1250, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 27 DAY)),
+('EP0020', 'KP0006', N'Lạm phát ảnh hưởng thế nào tới sinh viên', 1480, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 17 DAY)),
+('EP0021', 'KP0006', N'Quỹ dự phòng cá nhân cần bao nhiêu', 1020, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('EP0022', 'KP0007', N'Tìm ý tưởng sản phẩm từ nỗi đau người dùng', 1620, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 21 DAY)),
+('EP0023', 'KP0007', N'Sai lầm phổ biến khi làm MVP', 1380, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 13 DAY)),
+('EP0024', 'KP0008', N'Vượt qua hội chứng kẻ mạo danh', 1440, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 23 DAY)),
+('EP0025', 'KP0008', N'Giấc ngủ và hiệu suất học tập', 1180, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 15 DAY)),
+('EP0026', 'KP0008', N'Nghệ thuật lắng nghe chủ động', 1290, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('EP0027', 'KP0009', N'Chiến thắng Bạch Đằng năm 938', 1700, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 19 DAY)),
+('EP0028', 'KP0009', N'Thăng Long ngàn năm văn hiến', 1850, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 8 DAY)),
+('EP0029', 'KP0010', N'Số thử nghiệm âm thanh ASMR', 780, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 14 DAY));
 
 -- 5. TheoDoi (35 dòng: TD0001 -> TD0035; ND0020..ND0024 không có ở đây để test Q7)
 INSERT INTO TheoDoi (ma_theo_doi, ma_nguoi_dung, ma_kenh, ngay_theo_doi, bat_thong_bao) VALUES
@@ -239,16 +239,16 @@ INSERT INTO UngHo (ma_ung_ho, ma_nguoi_ung_ho, ma_creator, so_tien_ung_ho, loi_n
 
 -- 9. QuangCao (10 dòng: QC0001 -> QC0010)
 INSERT INTO QuangCao (ma_quang_cao, nha_quang_cao, tieu_de_qc, audio_qc, link_dich, thoi_luong_giay, trang_thai) VALUES
-('QC0001', N'FPT Software', N'Tuyển dụng Fresher IT 2026', 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'https://career.fpt-software.com', 30, 'hoat_dong'),
-('QC0002', N'Highlands Coffee', N'Phin Sữa Đá - Bật năng lượng', 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'https://www.highlandscoffee.com.vn', 20, 'hoat_dong'),
-('QC0003', N'Tiki Trading', N'Hội sách trực tuyến giảm 40%', 'https://www.youtube.com/watch?v=H14bBuluwB8', 'https://tiki.vn', 25, 'hoat_dong'),
-('QC0004', N'Coursera', N'Học Data Science nhận chứng chỉ quốc tế', 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'https://www.coursera.org', 30, 'hoat_dong'),
-('QC0005', N'ELSA Speak', N'Luyện phát âm tiếng Anh cùng AI', 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'https://elsaspeak.com', 25, 'hoat_dong'),
-('QC0006', N'MoMo', N'Thanh toán không tiền mặt tiện lợi', 'https://www.youtube.com/watch?v=aircAruvnKk', 'https://momo.vn', 20, 'hoat_dong'),
-('QC0007', N'Viettel Telecom', N'Gói cước 5G tốc độ cao cho sinh viên', 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'https://vietteltelecom.vn', 30, 'hoat_dong'),
-('QC0008', N'Shopee', N'Siêu hội sale giữa tháng miễn phí vận chuyển', 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'https://shopee.vn', 15, 'hoat_dong'),
-('QC0009', N'Grab', N'Đặt xe và giao đồ ăn siêu tốc', 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'https://www.grab.com/vn', 20, 'hoat_dong'),
-('QC0010', N'Fahasa', N'Sách kỹ năng giảm giá đến 35%', 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'https://www.fahasa.com', 25, 'hoat_dong');
+('QC0001', N'FPT Software', N'Tuyển dụng Fresher IT 2026', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'https://career.fpt-software.com', 30, 'hoat_dong'),
+('QC0002', N'Highlands Coffee', N'Phin Sữa Đá - Bật năng lượng', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'https://www.highlandscoffee.com.vn', 20, 'hoat_dong'),
+('QC0003', N'Tiki Trading', N'Hội sách trực tuyến giảm 40%', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'https://tiki.vn', 25, 'hoat_dong'),
+('QC0004', N'Coursera', N'Học Data Science nhận chứng chỉ quốc tế', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'https://www.coursera.org', 30, 'hoat_dong'),
+('QC0005', N'ELSA Speak', N'Luyện phát âm tiếng Anh cùng AI', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', 'https://elsaspeak.com', 25, 'hoat_dong'),
+('QC0006', N'MoMo', N'Thanh toán không tiền mặt tiện lợi', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', 'https://momo.vn', 20, 'hoat_dong'),
+('QC0007', N'Viettel Telecom', N'Gói cước 5G tốc độ cao cho sinh viên', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', 'https://vietteltelecom.vn', 30, 'hoat_dong'),
+('QC0008', N'Shopee', N'Siêu hội sale giữa tháng miễn phí vận chuyển', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', 'https://shopee.vn', 15, 'hoat_dong'),
+('QC0009', N'Grab', N'Đặt xe và giao đồ ăn siêu tốc', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', 'https://www.grab.com/vn', 20, 'hoat_dong'),
+('QC0010', N'Fahasa', N'Sách kỹ năng giảm giá đến 35%', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', 'https://www.fahasa.com', 25, 'hoat_dong');
 
 -- 10. HopDongQC (12 dòng: HD0001 -> HD0012)
 INSERT INTO HopDongQC (ma_hop_dong, ma_quang_cao, ma_creator, so_hop_dong, gia_tri_hd, don_gia_cpm, ngay_bat_dau, ngay_ket_thuc, trang_thai) VALUES

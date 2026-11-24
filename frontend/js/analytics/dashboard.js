@@ -136,7 +136,7 @@ const PodifyAnalytics = (() => {
       <div class="trigger-alert">
         <strong>Kiểm chứng quy tắc nghiệp vụ (Backend Validation):</strong>
         Mỗi Episode có thời lượng <strong>&lt; 20 phút (&lt; 1200s)</strong> chỉ được gắn tối đa <strong>3 hợp đồng quảng cáo</strong>.
-        Hiện Episode #3 (<em>Tập 3: SELECT nâng cao — 600s</em>) đã có đủ 3/3 hợp đồng. Hãy thử gắn thêm hợp đồng #4 (<code>CTR-2026-004</code>) để xem hệ thống Backend chặn và báo lỗi ngay!
+        Hiện <code>EP0011</code> (<em>Tập ngắn: Nhập môn SQL trong 15 phút — 900s</em>) đã có đủ 3/3 hợp đồng. Hãy thử gắn thêm hợp đồng <code>HD-2026-0004</code> (tài khoản <code>minh_ai</code>) để xem hệ thống chặn và báo lỗi ngay!
       </div>
 
       ${
@@ -190,7 +190,7 @@ const PodifyAnalytics = (() => {
             <button class="btn-primary" type="submit" ${isCreator ? '' : 'disabled'}>Gắn AdSlot vào Episode</button>
             ${
               !isCreator
-                ? '<button type="button" class="btn-secondary" onclick="PodifyUI.openAuthModal()">Cần đăng nhập Creator (nguyenvan_a)</button>'
+                ? '<button type="button" class="btn-secondary" onclick="PodifyUI.openAuthModal()">Cần đăng nhập Creator (minh_ai / manh_trithuc)</button>'
                 : ''
             }
           </div>
@@ -314,7 +314,6 @@ const PodifyAnalytics = (() => {
               <tr>
                 <th>Người ủng hộ</th>
                 <th>Creator nhận</th>
-                <th>Episode</th>
                 <th>Số tiền</th>
                 <th>Lời nhắn</th>
                 <th>Thời gian</th>
@@ -327,7 +326,6 @@ const PodifyAnalytics = (() => {
                   <tr>
                     <td><strong>${esc(d.donor_name)}</strong> (${esc(d.donor_username)})</td>
                     <td>${esc(d.creator_name)}</td>
-                    <td>${esc(d.episode_title || 'Ủng hộ chung kênh')}</td>
                     <td><strong style="color:var(--accent-text);">${PodifyUI.fmtCurrency(d.amount)}</strong></td>
                     <td>${esc(d.message || '—')}</td>
                     <td>${esc(String(d.donated_at).slice(0, 16).replace('T', ' '))}</td>
@@ -480,8 +478,8 @@ const PodifyAnalytics = (() => {
         await PodifyUI.api('/api/analytics/slots', {
           method: 'POST',
           body: {
-            contract_id: Number(fd.get('contract_id')),
-            episode_id: Number(fd.get('episode_id')),
+            contract_id: String(fd.get('contract_id') || ''),
+            episode_id: String(fd.get('episode_id') || ''),
             slot_position: fd.get('slot_position'),
             start_offset_seconds: Number(fd.get('start_offset_seconds')),
           },

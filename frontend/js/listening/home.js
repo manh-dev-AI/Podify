@@ -51,7 +51,7 @@
   let renderSeq = 0;
 
   function findEpExact(id) {
-    return state.episodes.find((e) => Number(e.episode_id) === Number(id)) || null;
+    return state.episodes.find((e) => String(e.episode_id) === String(id)) || null;
   }
 
   function getEp(id) {
@@ -59,7 +59,9 @@
   }
 
   function channelTheme(channelId) {
-    return CHANNEL_THEMES[(Number(channelId || 1) - 1) % CHANNEL_THEMES.length];
+    const match = String(channelId || '1').match(/\d+/);
+    const num = match ? Math.max(1, parseInt(match[0], 10)) : 1;
+    return CHANNEL_THEMES[(num - 1) % CHANNEL_THEMES.length];
   }
 
   function renderHeroWaveSVG() {
@@ -235,7 +237,7 @@
       libMarkup = eps
         .slice(0, 8)
         .map((e) => {
-          const isCurrentPlaying = state.playing && Number(state.nowEpId) === Number(e.episode_id);
+          const isCurrentPlaying = state.playing && String(state.nowEpId) === String(e.episode_id);
           return `
           <div class="lib-mini-card ${isCurrentPlaying ? 'playing' : ''}" data-act="play-episode-id" data-ep-id="${e.episode_id}">
             <div class="lib-mini-top">
@@ -606,7 +608,7 @@
       }
     }
 
-    const isSame = Number(state.nowEpId) === Number(ep.episode_id);
+    const isSame = String(state.nowEpId) === String(ep.episode_id);
     if (isSame && state.showPlayer && resumePos === null) {
       if (state.playing) {
         audio.pause();
@@ -654,6 +656,18 @@
 
   if (audio) {
     audio.addEventListener('error', () => {
+      if (audio.src && !audio.src.includes('/assets/audio/podcast_cuoc_song.mp3')) {
+        audio.src = '/assets/audio/podcast_cuoc_song.mp3';
+        audio.load();
+        audio.play().then(() => {
+          state.playing = !audio.paused;
+          syncMiniPlayer();
+        }).catch(() => {
+          state.playing = false;
+          syncMiniPlayer();
+        });
+        return;
+      }
       state.playing = false;
       syncMiniPlayer();
       PodifyUI.showToast(`Không tải được tệp audio (${audio.currentSrc || 'URL không hợp lệ'}).`);
@@ -757,7 +771,7 @@
       state.libFilter = btn.dataset.f;
       render(false);
     } else if (act === 'play-episode-id') {
-      const epId = Number(btn.dataset.epId);
+      const epId = btn.dataset.epId;
       const resume = btn.dataset.resume !== undefined ? Number(btn.dataset.resume) : null;
       await playEpisode(epId, resume);
     } else if (act === 'toggle-play') {
@@ -787,7 +801,7 @@
         PodifyUI.openAuthModal('login');
         return;
       }
-      const chId = Number(btn.dataset.channelId);
+      const chId = btn.dataset.channelId;
       const isSub = Number(btn.dataset.sub) === 1;
       try {
         if (isSub) {
@@ -805,7 +819,7 @@
         PodifyUI.showToast(err.message);
       }
     } else if (act === 'open-rate') {
-      openRateModal(Number(btn.dataset.id));
+      openRateModal(btn.dataset.id);
     } else if (act === 'open-rate-current') {
       if (state.nowEpId) openRateModal(state.nowEpId);
     } else if (act === 'pick-star') {

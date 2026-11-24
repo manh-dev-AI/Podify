@@ -311,7 +311,7 @@ const PodifyUI = (() => {
             <form id="authLoginForm" class="auth-form" ${authTab === 'login' ? '' : 'hidden'}>
               <div class="form-field">
                 <label for="loginIdentifier">Tên đăng nhập hoặc Email</label>
-                <input id="loginIdentifier" type="text" autocomplete="username" placeholder="vd: pham_d hoặc a@example.com" required />
+                <input id="loginIdentifier" type="text" autocomplete="username" placeholder="vd: manh_trithuc hoặc nam_nghe" required />
               </div>
 
               <div class="form-field">
@@ -593,7 +593,7 @@ const PodifyUI = (() => {
       select.innerHTML = creators
         .map(
           (c) =>
-            `<option value="${c.creator_id}" ${Number(defaultCreatorId) === Number(c.creator_id) ? 'selected' : ''}>${escapeHtml(c.display_name)} (${escapeHtml(c.username)})</option>`
+            `<option value="${c.creator_id}" ${String(defaultCreatorId) === String(c.creator_id) ? 'selected' : ''}>${escapeHtml(c.display_name)} (${escapeHtml(c.username)})</option>`
         )
         .join('');
       modal.hidden = false;
@@ -645,7 +645,7 @@ const PodifyUI = (() => {
     document.getElementById('donateForm')?.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       try {
-        const creator_id = Number(document.getElementById('donateCreatorSelect').value);
+        const creator_id = String(document.getElementById('donateCreatorSelect').value || '');
         const amount = Number(document.getElementById('donateAmountInput').value);
         const message = document.getElementById('donateMessageInput').value.trim();
         await api('/api/analytics/donations', {

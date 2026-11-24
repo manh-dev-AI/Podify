@@ -27,8 +27,8 @@ const PodifyLibrary = (() => {
   function getSavedIds() {
     try {
       const raw = localStorage.getItem(_savedStorageKey());
-      const arr = raw ? JSON.parse(raw) : [1, 5]; // Default sample bookmarks for first visit
-      return new Set(arr.map(Number));
+      const arr = raw ? JSON.parse(raw) : ['EP0001', 'EP0099'];
+      return new Set(arr.map(String));
     } catch {
       return new Set();
     }
@@ -36,12 +36,12 @@ const PodifyLibrary = (() => {
 
   function toggleSavedId(epId) {
     const set = getSavedIds();
-    const num = Number(epId);
+    const idStr = String(epId);
     let added = false;
-    if (set.has(num)) {
-      set.delete(num);
+    if (set.has(idStr)) {
+      set.delete(idStr);
     } else {
-      set.add(num);
+      set.add(idStr);
       added = true;
     }
     localStorage.setItem(_savedStorageKey(), JSON.stringify([...set]));
@@ -67,8 +67,9 @@ const PodifyLibrary = (() => {
   function _historyMapByEpisode() {
     const map = new Map();
     for (const h of state.history) {
-      if (!map.has(Number(h.episode_id))) {
-        map.set(Number(h.episode_id), h);
+      const epKey = String(h.episode_id);
+      if (!map.has(epKey)) {
+        map.set(epKey, h);
       }
     }
     return map;
@@ -80,10 +81,11 @@ const PodifyLibrary = (() => {
     const q = state.query.trim().toLowerCase();
 
     let items = state.episodes.map((e) => {
-      const hist = histMap.get(Number(e.episode_id)) || null;
+      const epKey = String(e.episode_id);
+      const hist = histMap.get(epKey) || null;
       return {
         ...e,
-        is_saved: savedSet.has(Number(e.episode_id)),
+        is_saved: savedSet.has(epKey),
         history_item: hist,
       };
     });
@@ -118,7 +120,7 @@ const PodifyLibrary = (() => {
     } else if (state.sortBy === 'rating') {
       items.sort((a, b) => Number(b.avg_rating || 0) - Number(a.avg_rating || 0));
     } else {
-      items.sort((a, b) => Number(b.episode_id) - Number(a.episode_id));
+      items.sort((a, b) => String(b.episode_id).localeCompare(String(a.episode_id)));
     }
     return items;
   }
@@ -150,7 +152,7 @@ const PodifyLibrary = (() => {
 
     try {
       const ep = await PodifyUI.api(`/api/content/episodes/${epId}`);
-      const isSaved = getSavedIds().has(Number(ep.episode_id));
+      const isSaved = getSavedIds().has(String(ep.episode_id));
       const slots = ep.ad_slots || [];
 
       titleEl.textContent = ep.title;
@@ -186,7 +188,7 @@ const PodifyLibrary = (() => {
           <button class="btn-primary" data-act="play-episode-id" data-ep-id="${ep.episode_id}" onclick="document.getElementById('episodeDetailModal').hidden=true;">▶ Nghe tập này</button>
           <button class="btn-secondary" data-lib-save-modal="${ep.episode_id}">${isSaved ? '✓ Bỏ lưu khỏi Thư viện' : '+ Lưu vào Thư viện'}</button>
           <button class="btn-secondary" data-act="open-rate" data-id="${ep.episode_id}">★ Đánh giá</button>
-          <button class="btn-secondary" onclick="PodifyUI.openDonateModal(${ep.creator_id})">Donate Creator</button>
+          <button class="btn-secondary" onclick="PodifyUI.openDonateModal('${esc(ep.creator_id)}')">Donate Creator</button>
         </div>
       `;
 
@@ -221,7 +223,7 @@ const PodifyLibrary = (() => {
             <tbody>
               ${items
                 .map((e) => {
-                  const playingNow = isPlaying && Number(playingEpId) === Number(e.episode_id);
+                  const playingNow = isPlaying && String(playingEpId) === String(e.episode_id);
                   const hist = e.history_item;
                   const pct = hist
                     ? Math.min(100, Math.round((Number(hist.last_position_seconds) / Number(e.duration_seconds || 1)) * 100))
@@ -287,7 +289,7 @@ const PodifyLibrary = (() => {
       <div class="lib-dense-grid">
         ${items
           .map((e) => {
-            const playingNow = isPlaying && Number(playingEpId) === Number(e.episode_id);
+            const playingNow = isPlaying && String(playingEpId) === String(e.episode_id);
             const hist = e.history_item;
             return `
               <div class="lib-item-card">
