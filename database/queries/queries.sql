@@ -121,25 +121,26 @@ GROUP BY t.ma_tap, k.tieu_de_kenh, t.tieu_de_tap
 ORDER BY so_luot_nghe DESC, t.ma_tap ASC;
 
 -- 6. CORRELATED SUBQUERY: Tìm các tập có lượt nghe cao hơn trung bình các tập KHÁC trong cùng kênh
-SELECT
-    t1.ma_tap,
-    k.tieu_de_kenh,
-    t1.tieu_de_tap,
-    (SELECT COUNT(*) FROM LichSuNghe ls1 WHERE ls1.ma_tap = t1.ma_tap) AS so_luot_nghe
-FROM TapPodcast t1
-JOIN KenhPodcast k ON t1.ma_kenh = k.ma_kenh
-WHERE (SELECT COUNT(*) FROM LichSuNghe ls1 WHERE ls1.ma_tap = t1.ma_tap) > (
-    SELECT COALESCE(AVG(sub.luot_nghe), 0)
-    FROM (
-        SELECT t2.ma_tap, COUNT(ls2.ma_lich_su) AS luot_nghe
-        FROM TapPodcast t2
-        LEFT JOIN LichSuNghe ls2 ON t2.ma_tap = ls2.ma_tap
-        WHERE t2.ma_kenh = t1.ma_kenh
-          AND t2.ma_tap <> t1.ma_tap
-        GROUP BY t2.ma_tap
-    ) AS sub
+USE podify_db_vi;
+
+-- thống kê số lượt nghe của từng tập Podcast
+WITH LuotNgheTheoTap AS (
+    SELECT t.ma_tap, t.ma_kenh, t.tieu_de_tap, COUNT(ls.ma_lich_su) AS luot_nghe
+    FROM TapPodcast t
+    LEFT JOIN LichSuNghe ls ON t.ma_tap = ls.ma_tap
+    GROUP BY t.ma_tap, t.ma_kenh, t.tieu_de_tap
 )
-ORDER BY t1.ma_kenh, so_luot_nghe DESC;
+--Lấy thông tin của tập Podcast đang xét
+SELECT ln.ma_tap, ln.ma_kenh,
+       ln.tieu_de_tap, ln.luot_nghe
+FROM LuotNgheTheoTap ln
+-- So sánh lượt nghe của tập đang xét với trung bình lượt nghe của các tập khác cùng kênh
+WHERE ln.luot_nghe > (
+    SELECT AVG(lt.luot_nghe)
+    FROM LuotNgheTheoTap lt
+    WHERE lt.ma_kenh = ln.ma_kenh AND lt.ma_tap <> ln.ma_tap
+)
+ORDER BY ln.ma_kenh ASC, ln.luot_nghe DESC;
 
 -- 7. SUBQUERY VỚI NOT IN: Tìm người dùng có tài khoản > 6 tháng nhưng chưa từng đăng ký kênh nào
 SELECT
