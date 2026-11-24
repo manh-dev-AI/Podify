@@ -112,7 +112,7 @@ WITH LuotNgheTheoTap AS (
     LEFT JOIN LichSuNghe ls ON t.ma_tap = ls.ma_tap
     GROUP BY t.ma_tap, t.ma_kenh, t.tieu_de_tap
 )
---Lấy thông tin của tập Podcast đang xét
+-- Lấy thông tin của tập Podcast đang xét
 SELECT ln.ma_tap, ln.ma_kenh,
        ln.tieu_de_tap, ln.luot_nghe
 FROM LuotNgheTheoTap ln
