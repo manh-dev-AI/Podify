@@ -61,6 +61,8 @@ def run_sql_file(cursor, path: str) -> int:
         statements = split_sql_statements(f.read())
     for stmt in statements:
         cursor.execute(stmt)
+        if cursor.with_rows:
+            cursor.fetchall()
     return len(statements)
 
 

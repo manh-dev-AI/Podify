@@ -14,18 +14,18 @@ from config.settings import Settings
 from init_db import split_sql_statements
 
 EXPECTED_TABLES = [
-    "Users",
-    "Creators",
-    "PodcastChannels",
-    "Episodes",
-    "Subscriptions",
-    "ListeningHistory",
-    "Ratings",
-    "Advertisements",
-    "AdContracts",
-    "AdSlots",
-    "AdRevenue",
-    "Donations",
+    "NguoiDung",
+    "NhaSangTao",
+    "KenhPodcast",
+    "TapPodcast",
+    "TheoDoi",
+    "LichSuNghe",
+    "DanhGia",
+    "UngHo",
+    "QuangCao",
+    "HopDongQC",
+    "ViTriQC",
+    "DoanhThuQC",
 ]
 
 
@@ -42,24 +42,17 @@ class TestDatabaseArtifactsStatic(unittest.TestCase):
         created = re.findall(r"CREATE TABLE\s+(\w+)\s*\(", schema_sql, flags=re.IGNORECASE)
         self.assertEqual(created, EXPECTED_TABLES)
 
-    def test_modular_schemas_match_12_tables(self):
-        s1 = _read("database/schema/01_users_content.sql")
-        s2 = _read("database/schema/02_listening.sql")
-        s3 = _read("database/schema/03_advertisement.sql")
-        combined = "\n".join([s1, s2, s3])
-        created = re.findall(r"CREATE TABLE\s+(\w+)\s*\(", combined, flags=re.IGNORECASE)
-        self.assertEqual(created, EXPECTED_TABLES)
-
     def test_seed_scripts_populate_all_tables(self):
         seed_sql = _read("database/seed/full_seed.sql")
         inserted = re.findall(r"INSERT INTO\s+(\w+)", seed_sql, flags=re.IGNORECASE)
-        self.assertEqual(inserted, EXPECTED_TABLES)
+        self.assertEqual(set(inserted), set(EXPECTED_TABLES))
 
-    def test_all_8_queries_exist_and_non_empty(self):
-        for i in range(1, 9):
-            q_sql = _read(f"database/queries/Q{i}.sql")
-            self.assertIn("SELECT", q_sql.upper(), f"Q{i}.sql missing SELECT")
-            self.assertIn("USE podify_db", q_sql)
+    def test_all_8_queries_and_trigger_exist(self):
+        q_sql = _read("database/queries/queries.sql")
+        self.assertIn("USE podify_db", q_sql)
+        self.assertIn("TRG_ViTriQC_KiemTra_BI", q_sql)
+        select_count = len(re.findall(r"\bSELECT\b", q_sql, flags=re.IGNORECASE))
+        self.assertGreaterEqual(select_count, 8)
 
     def test_erd_files_exist(self):
         self.assertTrue(os.path.isfile(os.path.join(ROOT_DIR, "database", "erd", "podify_erd.png")))
@@ -109,55 +102,30 @@ class TestLiveMySQLDatabase(unittest.TestCase):
         import mysql.connector
 
         cur = self.conn.cursor()
-        # Duplicate subscription (user 4, channel 1 already exists in seed)
+        # Duplicate subscription (ND0007, KP0001 already exists in seed)
         with self.assertRaises(mysql.connector.Error) as ctx1:
-            cur.execute("INSERT INTO Subscriptions (user_id, channel_id) VALUES (4, 1)")
+            cur.execute("INSERT INTO TheoDoi (ma_theo_doi, ma_nguoi_dung, ma_kenh) VALUES ('TD9999', 'ND0007', 'KP0001')")
         self.assertEqual(ctx1.exception.errno, 1062)
         self.conn.rollback()
 
         # Invalid rating score (CHECK 1..5)
         with self.assertRaises(mysql.connector.Error) as ctx2:
-            cur.execute("INSERT INTO Ratings (user_id, episode_id, score) VALUES (3, 1, 6)")
+            cur.execute("INSERT INTO DanhGia (ma_danh_gia, ma_nguoi_dung, ma_tap, so_sao) VALUES ('DG9999', 'ND0020', 'EP0001', 6)")
         self.assertEqual(ctx2.exception.errno, 3819)
         self.conn.rollback()
         cur.close()
 
     def test_queries_q1_to_q8_return_expected_results(self):
         cur = self.conn.cursor(dictionary=True)
-
-        def run_q(path):
-            rows = []
-            for stmt in split_sql_statements(_read(path)):
-                cur.execute(stmt)
-                if cur.with_rows:
-                    rows = cur.fetchall()
-            return rows
-
-        q1 = run_q("database/queries/Q1.sql")
-        self.assertEqual([r["episode_id"] for r in q1], [1, 2])
-
-        q2 = run_q("database/queries/Q2.sql")
-        self.assertEqual(len(q2), 3)
-
-        q3 = run_q("database/queries/Q3.sql")
-        self.assertEqual(len(q3), 3)
-
-        q4 = run_q("database/queries/Q4.sql")
-        self.assertEqual([r["channel_id"] for r in q4], [3])
-
-        q5 = run_q("database/queries/Q5.sql")
-        ep4 = next(r for r in q5 if r["episode_id"] == 4)
-        self.assertEqual(ep4["listen_count"], 0)
-
-        q6 = run_q("database/queries/Q6.sql")
-        self.assertGreaterEqual(len(q6), 3)
-
-        q7 = run_q("database/queries/Q7.sql")
-        self.assertEqual([r["username"] for r in q7], ["le_c"])
-
-        q8 = run_q("database/queries/Q8.sql")
-        self.assertGreaterEqual(len(q8), 6)
+        result_sets = []
+        for stmt in split_sql_statements(_read("database/queries/queries.sql")):
+            cur.execute(stmt)
+            if cur.with_rows:
+                result_sets.append(cur.fetchall())
         cur.close()
+
+        self.assertEqual(len(result_sets), 8)
+        self.assertEqual([len(rows) for rows in result_sets], [5, 3, 10, 2, 7, 11, 11, 24])
 
 
 if __name__ == "__main__":

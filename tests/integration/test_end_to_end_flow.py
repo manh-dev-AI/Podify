@@ -21,20 +21,20 @@ class TestCrossModuleIntegration(unittest.TestCase):
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
-        self.creator_token = create_access_token(1, "creator")
-        self.user_token = create_access_token(4, "user")
+        self.creator_token = create_access_token("ND0001", "creator")
+        self.user_token = create_access_token("ND0007", "user")
 
     def test_cross_module_flow_mocked(self):
         creator = {
-            "user_id": 1,
-            "username": "nguyenvan_a",
+            "user_id": "ND0001",
+            "username": "manh_trithuc",
             "role": "creator",
-            "creator_id": 1,
-            "creator_display_name": "Tech Talk VN",
+            "creator_id": "NST0001",
+            "creator_display_name": "Mạnh Tri Thức",
         }
         listener = {
-            "user_id": 4,
-            "username": "pham_d",
+            "user_id": "ND0007",
+            "username": "nam_nghe",
             "role": "user",
             "creator_id": None,
         }
@@ -42,13 +42,13 @@ class TestCrossModuleIntegration(unittest.TestCase):
         # 1. Creator creates an episode in Content module
         with patch("common.auth.load_user_with_creator", return_value=creator), patch(
             "config.db.fetch_one",
-            side_effect=[{"channel_id": 1, "creator_id": 1}, {"episode_id": 9, "title": "New Ep"}],
-        ), patch("config.db.execute", return_value=(1, 9)):
+            side_effect=[{"channel_id": "KP0001", "creator_id": "NST0001"}, {"episode_id": "EP0030", "title": "New Ep"}],
+        ), patch("config.db.next_id", return_value="EP0030"), patch("config.db.execute", return_value=(1, None)):
             res_ep = self.client.post(
                 "/api/content/episodes",
                 headers={"Authorization": f"Bearer {self.creator_token}"},
                 json={
-                    "channel_id": 1,
+                    "channel_id": "KP0001",
                     "title": "New Ep",
                     "audio_url": "/assets/audio/sample_1.mp3",
                     "duration_seconds": 1500,
@@ -60,26 +60,26 @@ class TestCrossModuleIntegration(unittest.TestCase):
         with patch("common.auth.load_user_with_creator", return_value=listener), patch(
             "config.db.fetch_one",
             side_effect=[
-                {"episode_id": 9, "duration_seconds": 1500},
-                {"history_id": 18, "episode_id": 9, "last_position_seconds": 450, "is_completed": 0},
+                {"episode_id": "EP0030", "duration_seconds": 1500},
+                {"history_id": "LS0056", "episode_id": "EP0030", "last_position_seconds": 450, "is_completed": 0},
             ],
-        ), patch("config.db.execute", return_value=(1, 18)):
+        ), patch("config.db.next_id", return_value="LS0056"), patch("config.db.execute", return_value=(1, None)):
             res_prog = self.client.post(
                 "/api/listening/progress",
                 headers={"Authorization": f"Bearer {self.user_token}"},
-                json={"episode_id": 9, "position_seconds": 450, "new_session": True},
+                json={"episode_id": "EP0030", "position_seconds": 450, "new_session": True},
             )
             self.assertEqual(res_prog.status_code, 201)
 
         # 3. Listener donates to Creator in Analytics module
         with patch("common.auth.load_user_with_creator", return_value=listener), patch(
             "config.db.fetch_one",
-            return_value={"donation_id": 5, "amount": 100000.0, "creator_id": 1},
-        ), patch("config.db.execute", return_value=(1, 5)):
+            return_value={"donation_id": "UH0016", "amount": 100000.0, "creator_id": "NST0001"},
+        ), patch("config.db.next_id", return_value="UH0016"), patch("config.db.execute", return_value=(1, None)):
             res_don = self.client.post(
                 "/api/analytics/donations",
                 headers={"Authorization": f"Bearer {self.user_token}"},
-                json={"creator_id": 1, "episode_id": 9, "amount": 100000, "message": "Great episode!"},
+                json={"creator_id": "NST0001", "episode_id": "EP0030", "amount": 100000, "message": "Great episode!"},
             )
             self.assertEqual(res_don.status_code, 201)
 
@@ -100,7 +100,7 @@ class TestCrossModuleLiveMySQL(unittest.TestCase):
         cls.client = cls.app.test_client()
 
     def test_full_user_and_creator_journey_live(self):
-        login_c = self.client.post("/api/content/auth/login", json={"identifier": "nguyenvan_a", "password": "123456"})
+        login_c = self.client.post("/api/content/auth/login", json={"identifier": "manh_trithuc", "password": "123456"})
         self.assertEqual(login_c.status_code, 200)
         c_token = login_c.get_json()["data"]["token"]
 
@@ -125,7 +125,7 @@ class TestCrossModuleLiveMySQL(unittest.TestCase):
         self.assertEqual(ep_res.status_code, 201)
         ep_id = ep_res.get_json()["data"]["episode_id"]
 
-        login_u = self.client.post("/api/content/auth/login", json={"identifier": "pham_d", "password": "123456"})
+        login_u = self.client.post("/api/content/auth/login", json={"identifier": "nam_nghe", "password": "123456"})
         self.assertEqual(login_u.status_code, 200)
         u_token = login_u.get_json()["data"]["token"]
 
@@ -155,7 +155,7 @@ class TestCrossModuleLiveMySQL(unittest.TestCase):
             self.client.post(
                 "/api/analytics/donations",
                 headers={"Authorization": f"Bearer {u_token}"},
-                json={"creator_id": 1, "episode_id": ep_id, "amount": 50000},
+                json={"creator_id": "NST0001", "episode_id": ep_id, "amount": 50000},
             ).status_code,
             201,
         )

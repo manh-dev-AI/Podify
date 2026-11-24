@@ -1,4 +1,4 @@
-"""Module 03: Advertisement, Donations & Business Analytics RESTful API Blueprint."""
+"""Module 03: Advertisement, Donations & Business Analytics RESTful API Blueprint (Vietnamese Schema)."""
 
 from flask import Blueprint, request
 
@@ -8,6 +8,11 @@ from common.response import success
 from config import db
 
 analytics_bp = Blueprint("analytics", __name__, url_prefix="/api/analytics")
+
+_AD_STATUS_TO_VI = {"active": "hoat_dong", "paused": "tam_dung", "archived": "luu_tru"}
+_CONTRACT_STATUS_TO_VI = {"draft": "nhap", "active": "hieu_luc", "completed": "hoan_thanh", "cancelled": "da_huy"}
+_SLOT_POS_TO_VI = {"pre-roll": "dau_tap", "mid-roll": "giua_tap", "post-roll": "cuoi_tap"}
+_SLOT_STATUS_TO_VI = {"scheduled": "da_len_lich", "active": "hoat_dong", "paused": "tam_dung"}
 
 
 def _json_body() -> dict:
@@ -24,17 +29,25 @@ def _require_fields(data: dict, *fields: str) -> None:
 
 
 # -------------------------------------------------------------------
-# Advertisements CRUD
+# Advertisements CRUD (QuangCao)
 # -------------------------------------------------------------------
 
 @analytics_bp.get("/ads")
 def list_ads():
     """List advertisements."""
-    status = request.args.get("status", "").strip()
+    status = request.args.get("status", "").strip().lower()
+    select_cols = """
+        ma_quang_cao AS ad_id, nha_quang_cao AS advertiser_name, tieu_de_qc AS title,
+        mo_ta AS description, audio_qc AS ad_audio_url, link_dich AS target_url,
+        thoi_luong_giay AS duration_seconds,
+        CASE trang_thai WHEN 'hoat_dong' THEN 'active' WHEN 'tam_dung' THEN 'paused' ELSE 'archived' END AS status,
+        ngay_tao AS created_at
+    """
     if status:
-        rows = db.fetch_all("SELECT * FROM Advertisements WHERE status = %s ORDER BY ad_id DESC", (status,))
+        vi_status = _AD_STATUS_TO_VI.get(status, status)
+        rows = db.fetch_all(f"SELECT {select_cols} FROM QuangCao WHERE trang_thai = %s ORDER BY ma_quang_cao DESC", (vi_status,))
     else:
-        rows = db.fetch_all("SELECT * FROM Advertisements ORDER BY ad_id DESC")
+        rows = db.fetch_all(f"SELECT {select_cols} FROM QuangCao ORDER BY ma_quang_cao DESC")
     return success(rows)
 
 
@@ -47,43 +60,65 @@ def create_ad():
     duration = int(data["duration_seconds"])
     if duration <= 0:
         raise AppError("Thời lượng quảng cáo phải lớn hơn 0.", status_code=400)
-    status = str(data.get("status", "active")).strip().lower()
-    if status not in ("active", "paused", "archived"):
+    status_in = str(data.get("status", "active")).strip().lower()
+    if status_in not in _AD_STATUS_TO_VI:
         raise AppError("Trạng thái quảng cáo không hợp lệ.", status_code=400)
 
-    _, ad_id = db.execute(
+    ad_id = db.next_id("QC", "QuangCao", "ma_quang_cao")
+    db.execute(
         """
-        INSERT INTO Advertisements (advertiser_name, title, description, ad_audio_url, target_url, duration_seconds, status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO QuangCao (ma_quang_cao, nha_quang_cao, tieu_de_qc, mo_ta, audio_qc, link_dich, thoi_luong_giay, trang_thai)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """,
         (
+            ad_id,
             str(data["advertiser_name"]).strip(),
             str(data["title"]).strip(),
             str(data.get("description") or "").strip() or None,
             data.get("ad_audio_url"),
             data.get("target_url"),
             duration,
-            status,
+            _AD_STATUS_TO_VI[status_in],
         ),
     )
-    row = db.fetch_one("SELECT * FROM Advertisements WHERE ad_id = %s", (ad_id,))
+    row = db.fetch_one(
+        """
+        SELECT ma_quang_cao AS ad_id, nha_quang_cao AS advertiser_name, tieu_de_qc AS title,
+               mo_ta AS description, audio_qc AS ad_audio_url, link_dich AS target_url,
+               thoi_luong_giay AS duration_seconds,
+               CASE trang_thai WHEN 'hoat_dong' THEN 'active' WHEN 'tam_dung' THEN 'paused' ELSE 'archived' END AS status,
+               ngay_tao AS created_at
+        FROM QuangCao WHERE ma_quang_cao = %s
+        """,
+        (ad_id,),
+    )
     return success(row, message="Tạo quảng cáo thành công.", status=201)
 
 
-@analytics_bp.put("/ads/<int:ad_id>")
+@analytics_bp.put("/ads/<ad_id>")
 @roles_required("creator", "admin")
-def update_ad(ad_id: int):
+def update_ad(ad_id: str):
     """Update an advertisement campaign."""
-    existing = db.fetch_one("SELECT * FROM Advertisements WHERE ad_id = %s", (ad_id,))
+    existing = db.fetch_one(
+        """
+        SELECT ma_quang_cao AS ad_id, nha_quang_cao AS advertiser_name, tieu_de_qc AS title,
+               mo_ta AS description, link_dich AS target_url, thoi_luong_giay AS duration_seconds,
+               trang_thai AS trang_thai_vi
+        FROM QuangCao WHERE ma_quang_cao = %s
+        """,
+        (ad_id,),
+    )
     if not existing:
         raise AppError("Không tìm thấy quảng cáo.", status_code=404)
     data = _json_body()
+    status_in = str(data.get("status") or "").strip().lower()
+    trang_thai_vi = _AD_STATUS_TO_VI.get(status_in, existing["trang_thai_vi"])
     db.execute(
         """
-        UPDATE Advertisements
-        SET advertiser_name = %s, title = %s, description = %s, target_url = %s,
-            duration_seconds = %s, status = %s
-        WHERE ad_id = %s
+        UPDATE QuangCao
+        SET nha_quang_cao = %s, tieu_de_qc = %s, mo_ta = %s, link_dich = %s,
+            thoi_luong_giay = %s, trang_thai = %s
+        WHERE ma_quang_cao = %s
         """,
         (
             str(data.get("advertiser_name") or existing["advertiser_name"]).strip(),
@@ -91,38 +126,68 @@ def update_ad(ad_id: int):
             data.get("description", existing["description"]),
             data.get("target_url", existing["target_url"]),
             int(data.get("duration_seconds", existing["duration_seconds"])),
-            str(data.get("status", existing["status"])).strip().lower(),
+            trang_thai_vi,
             ad_id,
         ),
     )
-    row = db.fetch_one("SELECT * FROM Advertisements WHERE ad_id = %s", (ad_id,))
+    row = db.fetch_one(
+        """
+        SELECT ma_quang_cao AS ad_id, nha_quang_cao AS advertiser_name, tieu_de_qc AS title,
+               mo_ta AS description, audio_qc AS ad_audio_url, link_dich AS target_url,
+               thoi_luong_giay AS duration_seconds,
+               CASE trang_thai WHEN 'hoat_dong' THEN 'active' WHEN 'tam_dung' THEN 'paused' ELSE 'archived' END AS status,
+               ngay_tao AS created_at
+        FROM QuangCao WHERE ma_quang_cao = %s
+        """,
+        (ad_id,),
+    )
     return success(row, message="Cập nhật quảng cáo thành công.")
 
 
 # -------------------------------------------------------------------
-# AdContracts CRUD
+# AdContracts CRUD (HopDongQC)
 # -------------------------------------------------------------------
 
 @analytics_bp.get("/contracts")
 def list_contracts():
     """List ad contracts joined with ad and creator info."""
-    creator_id = request.args.get("creator_id", type=int)
-    where_sql = "WHERE ac.creator_id = %s" if creator_id else ""
+    creator_id = request.args.get("creator_id", "").strip()
+    where_sql = "WHERE ac.ma_creator = %s" if creator_id else ""
     params = (creator_id,) if creator_id else ()
     rows = db.fetch_all(
         f"""
-        SELECT ac.*, a.advertiser_name, a.title AS ad_title, a.duration_seconds AS ad_duration_seconds,
-               cr.display_name AS creator_name,
-               COUNT(DISTINCT sl.slot_id) AS assigned_slots_count,
-               COALESCE(SUM(ar.amount), 0) AS realized_revenue
-        FROM AdContracts ac
-        INNER JOIN Advertisements a ON ac.ad_id = a.ad_id
-        INNER JOIN Creators cr ON ac.creator_id = cr.creator_id
-        LEFT JOIN AdSlots sl ON ac.contract_id = sl.contract_id
-        LEFT JOIN AdRevenue ar ON ac.contract_id = ar.contract_id
+        SELECT ac.ma_hop_dong AS contract_id,
+               ac.ma_quang_cao AS ad_id,
+               ac.ma_creator AS creator_id,
+               ac.so_hop_dong AS contract_code,
+               ac.gia_tri_hd AS contract_value,
+               ac.don_gia_cpm AS cpm_rate,
+               ac.ngay_bat_dau AS start_date,
+               ac.ngay_ket_thuc AS end_date,
+               CASE ac.trang_thai
+                   WHEN 'hieu_luc' THEN 'active'
+                   WHEN 'hoan_thanh' THEN 'completed'
+                   WHEN 'da_huy' THEN 'cancelled'
+                   ELSE 'draft'
+               END AS status,
+               ac.ngay_tao AS created_at,
+               a.nha_quang_cao AS advertiser_name,
+               a.tieu_de_qc AS ad_title,
+               a.thoi_luong_giay AS ad_duration_seconds,
+               cr.ten_hien_thi AS creator_name,
+               COUNT(DISTINCT sl.ma_vi_tri) AS assigned_slots_count,
+               COALESCE(SUM(ar.so_tien), 0) AS realized_revenue
+        FROM HopDongQC ac
+        JOIN QuangCao a ON ac.ma_quang_cao = a.ma_quang_cao
+        JOIN NhaSangTao cr ON ac.ma_creator = cr.ma_creator
+        LEFT JOIN ViTriQC sl ON ac.ma_hop_dong = sl.ma_hop_dong
+        LEFT JOIN DoanhThuQC ar ON ac.ma_hop_dong = ar.ma_hop_dong
         {where_sql}
-        GROUP BY ac.contract_id, a.advertiser_name, a.title, a.duration_seconds, cr.display_name
-        ORDER BY ac.contract_id DESC
+        GROUP BY ac.ma_hop_dong, ac.ma_quang_cao, ac.ma_creator, ac.so_hop_dong,
+                 ac.gia_tri_hd, ac.don_gia_cpm, ac.ngay_bat_dau, ac.ngay_ket_thuc,
+                 ac.trang_thai, ac.ngay_tao,
+                 a.nha_quang_cao, a.tieu_de_qc, a.thoi_luong_giay, cr.ten_hien_thi
+        ORDER BY ac.ma_hop_dong DESC
         """,
         params,
     )
@@ -137,55 +202,81 @@ def create_contract():
     data = _json_body()
     _require_fields(data, "ad_id", "contract_code", "contract_value", "start_date", "end_date")
 
-    creator_id = int(data.get("creator_id") or user.get("creator_id") or 0)
+    creator_id = str(data.get("creator_id") or user.get("creator_id") or "").strip()
     if not creator_id:
         raise AppError("Thiếu creator_id cho hợp đồng.", status_code=400)
     if user["role"] != "admin" and creator_id != user.get("creator_id"):
         raise AppError("Bạn chỉ có thể tạo hợp đồng cho Creator của chính mình.", status_code=403)
 
-    _, contract_id = db.execute(
+    status_in = str(data.get("status", "active")).strip().lower()
+    trang_thai_vi = _CONTRACT_STATUS_TO_VI.get(status_in, status_in)
+    contract_id = db.next_id("HD", "HopDongQC", "ma_hop_dong")
+
+    db.execute(
         """
-        INSERT INTO AdContracts (ad_id, creator_id, contract_code, contract_value, cpm_rate, start_date, end_date, status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO HopDongQC (ma_hop_dong, ma_quang_cao, ma_creator, so_hop_dong, gia_tri_hd, don_gia_cpm, ngay_bat_dau, ngay_ket_thuc, trang_thai)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """,
         (
-            int(data["ad_id"]),
+            contract_id,
+            str(data["ad_id"]).strip(),
             creator_id,
             str(data["contract_code"]).strip(),
             float(data["contract_value"]),
             float(data.get("cpm_rate", 0)),
             str(data["start_date"]).strip(),
             str(data["end_date"]).strip(),
-            str(data.get("status", "active")).strip().lower(),
+            trang_thai_vi,
         ),
     )
-    row = db.fetch_one("SELECT * FROM AdContracts WHERE contract_id = %s", (contract_id,))
+    row = db.fetch_one(
+        """
+        SELECT ma_hop_dong AS contract_id, ma_quang_cao AS ad_id, ma_creator AS creator_id,
+               so_hop_dong AS contract_code, gia_tri_hd AS contract_value, don_gia_cpm AS cpm_rate,
+               ngay_bat_dau AS start_date, ngay_ket_thuc AS end_date,
+               CASE trang_thai WHEN 'hieu_luc' THEN 'active' WHEN 'hoan_thanh' THEN 'completed' WHEN 'da_huy' THEN 'cancelled' ELSE 'draft' END AS status,
+               ngay_tao AS created_at
+        FROM HopDongQC WHERE ma_hop_dong = %s
+        """,
+        (contract_id,),
+    )
     return success(row, message="Tạo hợp đồng quảng cáo thành công.", status=201)
 
 
 # -------------------------------------------------------------------
-# AdSlots CRUD (Protected by MySQL Trigger TRG_AdSlots_Limit_Contracts_BI)
+# AdSlots CRUD (ViTriQC — Business Rules enforced in Backend)
 # -------------------------------------------------------------------
 
 @analytics_bp.get("/slots")
 def list_slots():
     """List ad slot placements across episodes."""
-    episode_id = request.args.get("episode_id", type=int)
-    where_sql = "WHERE s.episode_id = %s" if episode_id else ""
+    episode_id = request.args.get("episode_id", "").strip()
+    where_sql = "WHERE s.ma_tap = %s" if episode_id else ""
     params = (episode_id,) if episode_id else ()
     rows = db.fetch_all(
         f"""
-        SELECT s.*, e.title AS episode_title, e.duration_seconds AS episode_duration_seconds,
-               ch.channel_id, ch.title AS channel_title,
-               ac.contract_code, ac.creator_id,
-               a.advertiser_name, a.title AS ad_title
-        FROM AdSlots s
-        INNER JOIN Episodes e ON s.episode_id = e.episode_id
-        INNER JOIN PodcastChannels ch ON e.channel_id = ch.channel_id
-        INNER JOIN AdContracts ac ON s.contract_id = ac.contract_id
-        INNER JOIN Advertisements a ON ac.ad_id = a.ad_id
+        SELECT s.ma_vi_tri AS slot_id,
+               s.ma_hop_dong AS contract_id,
+               s.ma_tap AS episode_id,
+               CASE s.vi_tri WHEN 'dau_tap' THEN 'pre-roll' WHEN 'cuoi_tap' THEN 'post-roll' ELSE 'mid-roll' END AS slot_position,
+               s.giay_bat_dau AS start_offset_seconds,
+               CASE s.trang_thai WHEN 'da_len_lich' THEN 'scheduled' WHEN 'tam_dung' THEN 'paused' ELSE 'active' END AS status,
+               s.ngay_tao AS created_at,
+               e.tieu_de_tap AS episode_title,
+               e.thoi_luong_giay AS episode_duration_seconds,
+               ch.ma_kenh AS channel_id,
+               ch.tieu_de_kenh AS channel_title,
+               ac.so_hop_dong AS contract_code,
+               ac.ma_creator AS creator_id,
+               a.nha_quang_cao AS advertiser_name,
+               a.tieu_de_qc AS ad_title
+        FROM ViTriQC s
+        JOIN TapPodcast e ON s.ma_tap = e.ma_tap
+        JOIN KenhPodcast ch ON e.ma_kenh = ch.ma_kenh
+        JOIN HopDongQC ac ON s.ma_hop_dong = ac.ma_hop_dong
+        JOIN QuangCao a ON ac.ma_quang_cao = a.ma_quang_cao
         {where_sql}
-        ORDER BY s.episode_id ASC, s.start_offset_seconds ASC
+        ORDER BY s.ma_tap ASC, s.giay_bat_dau ASC
         """,
         params,
     )
@@ -200,21 +291,22 @@ def create_slot():
     data = _json_body()
     _require_fields(data, "contract_id", "episode_id")
 
-    contract_id = int(data["contract_id"])
-    episode_id = int(data["episode_id"])
+    contract_id = str(data["contract_id"]).strip()
+    episode_id = str(data["episode_id"]).strip()
     slot_position = str(data.get("slot_position", "mid-roll")).strip().lower()
-    if slot_position not in ("pre-roll", "mid-roll", "post-roll"):
+    if slot_position not in _SLOT_POS_TO_VI:
         raise AppError("Vị trí quảng cáo phải là pre-roll, mid-roll hoặc post-roll.", status_code=400)
 
     offset = int(data.get("start_offset_seconds", 0))
-    status = str(data.get("status", "active")).strip().lower()
+    status_in = str(data.get("status", "active")).strip().lower()
+    trang_thai_vi = _SLOT_STATUS_TO_VI.get(status_in, status_in)
 
     ep_info = db.fetch_one(
         """
-        SELECT e.duration_seconds, ch.creator_id
-        FROM Episodes e
-        INNER JOIN PodcastChannels ch ON e.channel_id = ch.channel_id
-        WHERE e.episode_id = %s
+        SELECT e.thoi_luong_giay AS duration_seconds, ch.ma_creator AS creator_id
+        FROM TapPodcast e
+        JOIN KenhPodcast ch ON e.ma_kenh = ch.ma_kenh
+        WHERE e.ma_tap = %s
         """,
         (episode_id,),
     )
@@ -225,28 +317,25 @@ def create_slot():
         raise AppError("Bạn không có quyền gắn quảng cáo vào Episode của Creator khác.", status_code=403)
 
     contract_info = db.fetch_one(
-        "SELECT contract_id, creator_id FROM AdContracts WHERE contract_id = %s",
+        "SELECT ma_hop_dong AS contract_id, ma_creator AS creator_id FROM HopDongQC WHERE ma_hop_dong = %s",
         (contract_id,),
     )
     if not contract_info:
         raise AppError("Hợp đồng quảng cáo không tồn tại.", status_code=404)
 
-    # Rule 1: Hợp đồng quảng cáo phải thuộc cùng Creator với Episode
     if ep_info["creator_id"] != contract_info["creator_id"]:
         raise AppError("Hợp đồng quảng cáo chỉ được gắn vào Episode thuộc cùng Creator.", status_code=400)
 
-    # Rule 2: Thời điểm chèn quảng cáo không âm và không vượt quá thời lượng Episode
-    if offset < 0 or offset > ep_info["duration_seconds"]:
+    if offset < 0 or offset >= ep_info["duration_seconds"]:
         raise AppError("Vị trí quảng cáo (start_offset_seconds) vượt quá thời lượng Episode.", status_code=400)
 
-    # Rule 3: Episode dưới 20 phút (< 1200s) chỉ được gắn tối đa 3 hợp đồng khác nhau
     if ep_info["duration_seconds"] < 1200:
         slot_stats = db.fetch_one(
             """
-            SELECT COUNT(DISTINCT contract_id) AS distinct_contracts,
-                   COALESCE(MAX(CASE WHEN contract_id = %s THEN 1 ELSE 0 END), 0) AS already_attached
-            FROM AdSlots
-            WHERE episode_id = %s
+            SELECT COUNT(DISTINCT ma_hop_dong) AS distinct_contracts,
+                   COALESCE(MAX(CASE WHEN ma_hop_dong = %s THEN 1 ELSE 0 END), 0) AS already_attached
+            FROM ViTriQC
+            WHERE ma_tap = %s
             """,
             (contract_id, episode_id),
         )
@@ -256,29 +345,40 @@ def create_slot():
                 status_code=400,
             )
 
-    _, slot_id = db.execute(
+    slot_id = db.next_id("VT", "ViTriQC", "ma_vi_tri")
+    db.execute(
         """
-        INSERT INTO AdSlots (contract_id, episode_id, slot_position, start_offset_seconds, status)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO ViTriQC (ma_vi_tri, ma_hop_dong, ma_tap, vi_tri, giay_bat_dau, trang_thai)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """,
-        (contract_id, episode_id, slot_position, offset, status),
+        (slot_id, contract_id, episode_id, _SLOT_POS_TO_VI[slot_position], offset, trang_thai_vi),
     )
-    row = db.fetch_one("SELECT * FROM AdSlots WHERE slot_id = %s", (slot_id,))
+    row = db.fetch_one(
+        """
+        SELECT ma_vi_tri AS slot_id, ma_hop_dong AS contract_id, ma_tap AS episode_id,
+               CASE vi_tri WHEN 'dau_tap' THEN 'pre-roll' WHEN 'cuoi_tap' THEN 'post-roll' ELSE 'mid-roll' END AS slot_position,
+               giay_bat_dau AS start_offset_seconds,
+               CASE trang_thai WHEN 'da_len_lich' THEN 'scheduled' WHEN 'tam_dung' THEN 'paused' ELSE 'active' END AS status,
+               ngay_tao AS created_at
+        FROM ViTriQC WHERE ma_vi_tri = %s
+        """,
+        (slot_id,),
+    )
     return success(row, message="Đã gắn quảng cáo vào Episode thành công.", status=201)
 
 
-@analytics_bp.delete("/slots/<int:slot_id>")
+@analytics_bp.delete("/slots/<slot_id>")
 @roles_required("creator", "admin")
-def delete_slot(slot_id: int):
+def delete_slot(slot_id: str):
     """Remove an ad slot placement."""
     user = get_current_user()
     existing = db.fetch_one(
         """
-        SELECT s.slot_id, ch.creator_id
-        FROM AdSlots s
-        INNER JOIN Episodes e ON s.episode_id = e.episode_id
-        INNER JOIN PodcastChannels ch ON e.channel_id = ch.channel_id
-        WHERE s.slot_id = %s
+        SELECT s.ma_vi_tri AS slot_id, ch.ma_creator AS creator_id
+        FROM ViTriQC s
+        JOIN TapPodcast e ON s.ma_tap = e.ma_tap
+        JOIN KenhPodcast ch ON e.ma_kenh = ch.ma_kenh
+        WHERE s.ma_vi_tri = %s
         """,
         (slot_id,),
     )
@@ -287,12 +387,12 @@ def delete_slot(slot_id: int):
     if user["role"] != "admin" and existing["creator_id"] != user.get("creator_id"):
         raise AppError("Bạn không có quyền xóa AdSlot này.", status_code=403)
 
-    db.execute("DELETE FROM AdSlots WHERE slot_id = %s", (slot_id,))
+    db.execute("DELETE FROM ViTriQC WHERE ma_vi_tri = %s", (slot_id,))
     return success({"deleted_slot_id": slot_id}, message="Đã gỡ AdSlot khỏi Episode.")
 
 
 # -------------------------------------------------------------------
-# AdRevenue & Donations
+# AdRevenue & Donations (DoanhThuQC & UngHo)
 # -------------------------------------------------------------------
 
 @analytics_bp.get("/revenue")
@@ -300,13 +400,24 @@ def list_revenue():
     """List ad revenue entries joined with contracts and creators."""
     rows = db.fetch_all(
         """
-        SELECT ar.*, ac.contract_code, cr.creator_id, cr.display_name AS creator_name,
-               a.advertiser_name, a.title AS ad_title
-        FROM AdRevenue ar
-        INNER JOIN AdContracts ac ON ar.contract_id = ac.contract_id
-        INNER JOIN Creators cr ON ac.creator_id = cr.creator_id
-        INNER JOIN Advertisements a ON ac.ad_id = a.ad_id
-        ORDER BY ar.revenue_date DESC, ar.revenue_id DESC
+        SELECT ar.ma_doanh_thu AS revenue_id,
+               ar.ma_hop_dong AS contract_id,
+               ar.ma_vi_tri AS slot_id,
+               ar.ngay_ghi_nhan AS revenue_date,
+               ar.luot_hien_thi AS impressions,
+               ar.so_tien AS amount,
+               ar.ghi_chu AS notes,
+               ar.ngay_tao AS created_at,
+               ac.so_hop_dong AS contract_code,
+               cr.ma_creator AS creator_id,
+               cr.ten_hien_thi AS creator_name,
+               a.nha_quang_cao AS advertiser_name,
+               a.tieu_de_qc AS ad_title
+        FROM DoanhThuQC ar
+        JOIN HopDongQC ac ON ar.ma_hop_dong = ac.ma_hop_dong
+        JOIN NhaSangTao cr ON ac.ma_creator = cr.ma_creator
+        JOIN QuangCao a ON ac.ma_quang_cao = a.ma_quang_cao
+        ORDER BY ar.ngay_ghi_nhan DESC, ar.ma_doanh_thu DESC
         """
     )
     return success(rows)
@@ -318,21 +429,31 @@ def create_revenue():
     """Record a new ad revenue entry."""
     data = _json_body()
     _require_fields(data, "contract_id", "revenue_date", "amount")
-    _, rev_id = db.execute(
+    rev_id = db.next_id("DT", "DoanhThuQC", "ma_doanh_thu")
+    db.execute(
         """
-        INSERT INTO AdRevenue (contract_id, slot_id, revenue_date, impressions, amount, notes)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO DoanhThuQC (ma_doanh_thu, ma_hop_dong, ma_vi_tri, ngay_ghi_nhan, luot_hien_thi, so_tien, ghi_chu)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
         (
-            int(data["contract_id"]),
-            int(data["slot_id"]) if data.get("slot_id") else None,
+            rev_id,
+            str(data["contract_id"]).strip(),
+            str(data["slot_id"]).strip() if data.get("slot_id") else None,
             str(data["revenue_date"]).strip(),
             int(data.get("impressions", 0)),
             float(data["amount"]),
             str(data.get("notes") or "").strip() or None,
         ),
     )
-    row = db.fetch_one("SELECT * FROM AdRevenue WHERE revenue_id = %s", (rev_id,))
+    row = db.fetch_one(
+        """
+        SELECT ma_doanh_thu AS revenue_id, ma_hop_dong AS contract_id, ma_vi_tri AS slot_id,
+               ngay_ghi_nhan AS revenue_date, luot_hien_thi AS impressions, so_tien AS amount,
+               ghi_chu AS notes, ngay_tao AS created_at
+        FROM DoanhThuQC WHERE ma_doanh_thu = %s
+        """,
+        (rev_id,),
+    )
     return success(row, message="Đã ghi nhận doanh thu quảng cáo.", status=201)
 
 
@@ -341,13 +462,22 @@ def list_donations():
     """List donation history."""
     rows = db.fetch_all(
         """
-        SELECT d.*, u.username AS donor_username, u.full_name AS donor_name,
-               cr.display_name AS creator_name, e.title AS episode_title
-        FROM Donations d
-        INNER JOIN Users u ON d.donor_user_id = u.user_id
-        INNER JOIN Creators cr ON d.creator_id = cr.creator_id
-        LEFT JOIN Episodes e ON d.episode_id = e.episode_id
-        ORDER BY d.donated_at DESC, d.donation_id DESC
+        SELECT d.ma_ung_ho AS donation_id,
+               d.ma_nguoi_ung_ho AS donor_user_id,
+               d.ma_creator AS creator_id,
+               d.ma_tap AS episode_id,
+               d.so_tien_ung_ho AS amount,
+               d.loi_nhan AS message,
+               d.ngay_ung_ho AS donated_at,
+               u.ten_dang_nhap AS donor_username,
+               u.ho_ten AS donor_name,
+               cr.ten_hien_thi AS creator_name,
+               e.tieu_de_tap AS episode_title
+        FROM UngHo d
+        JOIN NguoiDung u ON d.ma_nguoi_ung_ho = u.ma_nguoi_dung
+        JOIN NhaSangTao cr ON d.ma_creator = cr.ma_creator
+        LEFT JOIN TapPodcast e ON d.ma_tap = e.ma_tap
+        ORDER BY d.ngay_ung_ho DESC, d.ma_ung_ho DESC
         """
     )
     return success(rows)
@@ -364,28 +494,33 @@ def create_donation():
     if amount <= 0:
         raise AppError("Số tiền ủng hộ phải lớn hơn 0.", status_code=400)
 
-    _, donation_id = db.execute(
+    donation_id = db.next_id("UH", "UngHo", "ma_ung_ho")
+    db.execute(
         """
-        INSERT INTO Donations (donor_user_id, creator_id, episode_id, amount, message)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO UngHo (ma_ung_ho, ma_nguoi_ung_ho, ma_creator, ma_tap, so_tien_ung_ho, loi_nhan)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """,
         (
+            donation_id,
             user["user_id"],
-            int(data["creator_id"]),
-            int(data["episode_id"]) if data.get("episode_id") else None,
+            str(data["creator_id"]).strip(),
+            str(data["episode_id"]).strip() if data.get("episode_id") else None,
             amount,
             str(data.get("message") or "").strip() or None,
         ),
     )
     row = db.fetch_one(
         """
-        SELECT d.*, u.username AS donor_username, u.full_name AS donor_name,
-               cr.display_name AS creator_name, e.title AS episode_title
-        FROM Donations d
-        INNER JOIN Users u ON d.donor_user_id = u.user_id
-        INNER JOIN Creators cr ON d.creator_id = cr.creator_id
-        LEFT JOIN Episodes e ON d.episode_id = e.episode_id
-        WHERE d.donation_id = %s
+        SELECT d.ma_ung_ho AS donation_id, d.ma_nguoi_ung_ho AS donor_user_id,
+               d.ma_creator AS creator_id, d.ma_tap AS episode_id,
+               d.so_tien_ung_ho AS amount, d.loi_nhan AS message, d.ngay_ung_ho AS donated_at,
+               u.ten_dang_nhap AS donor_username, u.ho_ten AS donor_name,
+               cr.ten_hien_thi AS creator_name, e.tieu_de_tap AS episode_title
+        FROM UngHo d
+        JOIN NguoiDung u ON d.ma_nguoi_ung_ho = u.ma_nguoi_dung
+        JOIN NhaSangTao cr ON d.ma_creator = cr.ma_creator
+        LEFT JOIN TapPodcast e ON d.ma_tap = e.ma_tap
+        WHERE d.ma_ung_ho = %s
         """,
         (donation_id,),
     )
@@ -401,35 +536,37 @@ _QUERY_SPECS = {
         "id": "Q1",
         "owner": "Mạnh",
         "title": "Episodes thời lượng 15–30 phút thuộc Channel cụ thể",
-        "concepts": "INNER JOIN, WHERE, BETWEEN, SEC_TO_TIME",
+        "concepts": "JOIN, WHERE, BETWEEN, SEC_TO_TIME",
         "sql": """
-SELECT e.episode_id, c.title AS channel_name, e.title AS episode_title,
-       e.duration_seconds, SEC_TO_TIME(e.duration_seconds) AS duration_formatted,
-       e.published_at, e.status
-FROM Episodes e
-INNER JOIN PodcastChannels c ON e.channel_id = c.channel_id
-WHERE e.channel_id = %s
-  AND e.status = 'published'
-  AND e.duration_seconds BETWEEN 900 AND 1800
-ORDER BY e.duration_seconds ASC
+SELECT e.ma_tap AS episode_id, c.tieu_de_kenh AS channel_name, e.tieu_de_tap AS episode_title,
+       e.thoi_luong_giay AS duration_seconds, SEC_TO_TIME(e.thoi_luong_giay) AS duration_formatted,
+       e.ngay_phat_hanh AS published_at,
+       CASE e.trang_thai WHEN 'da_phat_hanh' THEN 'published' WHEN 'luu_tru' THEN 'archived' ELSE 'draft' END AS status
+FROM TapPodcast e
+JOIN KenhPodcast c ON e.ma_kenh = c.ma_kenh
+WHERE e.ma_kenh = %s
+  AND e.trang_thai = 'da_phat_hanh'
+  AND e.thoi_luong_giay BETWEEN 900 AND 1800
+ORDER BY e.thoi_luong_giay ASC
 """,
     },
     "Q2": {
         "id": "Q2",
         "owner": "Quang",
         "title": "Các quảng cáo xuất hiện trong EP99",
-        "concepts": "Multi-table INNER JOIN (4 bảng), LIKE",
+        "concepts": "Multi-table JOIN (4 bảng), LIKE",
         "sql": """
-SELECT e.episode_id, e.title AS episode_title, s.slot_position,
-       s.start_offset_seconds, SEC_TO_TIME(s.start_offset_seconds) AS offset_formatted,
-       ac.contract_code, a.ad_id, a.advertiser_name, a.title AS ad_title,
-       a.duration_seconds AS ad_duration_seconds
-FROM Episodes e
-INNER JOIN AdSlots s ON e.episode_id = s.episode_id
-INNER JOIN AdContracts ac ON s.contract_id = ac.contract_id
-INNER JOIN Advertisements a ON ac.ad_id = a.ad_id
-WHERE e.title LIKE 'EP99%%'
-ORDER BY s.start_offset_seconds ASC
+SELECT e.ma_tap AS episode_id, e.tieu_de_tap AS episode_title,
+       CASE s.vi_tri WHEN 'dau_tap' THEN 'pre-roll' WHEN 'cuoi_tap' THEN 'post-roll' ELSE 'mid-roll' END AS slot_position,
+       s.giay_bat_dau AS start_offset_seconds, SEC_TO_TIME(s.giay_bat_dau) AS offset_formatted,
+       ac.so_hop_dong AS contract_code, a.ma_quang_cao AS ad_id, a.nha_quang_cao AS advertiser_name,
+       a.tieu_de_qc AS ad_title, a.thoi_luong_giay AS ad_duration_seconds
+FROM TapPodcast e
+JOIN ViTriQC s ON e.ma_tap = s.ma_tap
+JOIN HopDongQC ac ON s.ma_hop_dong = ac.ma_hop_dong
+JOIN QuangCao a ON ac.ma_quang_cao = a.ma_quang_cao
+WHERE e.tieu_de_tap LIKE 'EP99%%'
+ORDER BY s.giay_bat_dau ASC
 """,
     },
     "Q3": {
@@ -438,33 +575,33 @@ ORDER BY s.start_offset_seconds ASC
         "title": "Số lượng Subscriber mới theo từng Channel trong tháng",
         "concepts": "LEFT JOIN (lọc tháng ở ON), COUNT, GROUP BY",
         "sql": """
-SELECT c.channel_id, c.title AS channel_title, c.category,
+SELECT c.ma_kenh AS channel_id, c.tieu_de_kenh AS channel_title, c.the_loai AS category,
        MAX(CONCAT(%s, '-', LPAD(%s, 2, '0'))) AS report_month,
-       COUNT(s.subscription_id) AS new_subscribers_count
-FROM PodcastChannels c
-LEFT JOIN Subscriptions s
-    ON c.channel_id = s.channel_id
-   AND YEAR(s.subscribed_at) = %s
-   AND MONTH(s.subscribed_at) = %s
-GROUP BY c.channel_id, c.title, c.category
-ORDER BY new_subscribers_count DESC, c.channel_id ASC
+       COUNT(s.ma_theo_doi) AS new_subscribers_count
+FROM KenhPodcast c
+LEFT JOIN TheoDoi s
+    ON c.ma_kenh = s.ma_kenh
+   AND YEAR(s.ngay_theo_doi) = %s
+   AND MONTH(s.ngay_theo_doi) = %s
+GROUP BY c.ma_kenh, c.tieu_de_kenh, c.the_loai
+ORDER BY new_subscribers_count DESC, c.ma_kenh ASC
 """,
     },
     "Q4": {
         "id": "Q4",
         "owner": "Quân",
         "title": "Các Channel có Rating trung bình dưới 3",
-        "concepts": "Multi-table INNER JOIN, AVG, GROUP BY, HAVING",
+        "concepts": "Multi-table JOIN, AVG, GROUP BY, HAVING",
         "sql": """
-SELECT c.channel_id, c.title AS channel_title, cr.display_name AS creator_name,
-       COUNT(r.rating_id) AS total_ratings,
-       ROUND(AVG(r.score), 2) AS avg_rating
-FROM PodcastChannels c
-INNER JOIN Creators cr ON c.creator_id = cr.creator_id
-INNER JOIN Episodes e ON c.channel_id = e.channel_id
-INNER JOIN Ratings r ON e.episode_id = r.episode_id
-GROUP BY c.channel_id, c.title, cr.display_name
-HAVING AVG(r.score) < 3.0
+SELECT c.ma_kenh AS channel_id, c.tieu_de_kenh AS channel_title, cr.ten_hien_thi AS creator_name,
+       COUNT(r.ma_danh_gia) AS total_ratings,
+       ROUND(AVG(r.so_sao), 2) AS avg_rating
+FROM KenhPodcast c
+JOIN NhaSangTao cr ON c.ma_creator = cr.ma_creator
+JOIN TapPodcast e ON c.ma_kenh = e.ma_kenh
+JOIN DanhGia r ON e.ma_tap = r.ma_tap
+GROUP BY c.ma_kenh, c.tieu_de_kenh, cr.ten_hien_thi
+HAVING AVG(r.so_sao) < 3.0
 ORDER BY avg_rating ASC
 """,
     },
@@ -474,78 +611,83 @@ ORDER BY avg_rating ASC
         "title": "Danh sách Episode và số lượt nghe (kể cả 0 lượt nghe)",
         "concepts": "LEFT JOIN, COUNT(column), GROUP BY",
         "sql": """
-SELECT e.episode_id, c.title AS channel_title, e.title AS episode_title,
-       e.duration_seconds, SEC_TO_TIME(e.duration_seconds) AS duration_formatted,
-       e.status, COUNT(lh.history_id) AS listen_count
-FROM Episodes e
-INNER JOIN PodcastChannels c ON e.channel_id = c.channel_id
-LEFT JOIN ListeningHistory lh ON e.episode_id = lh.episode_id
-GROUP BY e.episode_id, c.title, e.title, e.duration_seconds, e.status
-ORDER BY listen_count DESC, e.episode_id ASC
+SELECT e.ma_tap AS episode_id, c.tieu_de_kenh AS channel_title, e.tieu_de_tap AS episode_title,
+       e.thoi_luong_giay AS duration_seconds, SEC_TO_TIME(e.thoi_luong_giay) AS duration_formatted,
+       CASE e.trang_thai WHEN 'da_phat_hanh' THEN 'published' WHEN 'luu_tru' THEN 'archived' ELSE 'draft' END AS status,
+       COUNT(lh.ma_lich_su) AS listen_count
+FROM TapPodcast e
+JOIN KenhPodcast c ON e.ma_kenh = c.ma_kenh
+LEFT JOIN LichSuNghe lh ON e.ma_tap = lh.ma_tap
+GROUP BY e.ma_tap, c.tieu_de_kenh, e.tieu_de_tap, e.thoi_luong_giay, e.trang_thai
+ORDER BY listen_count DESC, e.ma_tap ASC
 """,
     },
     "Q6": {
         "id": "Q6",
         "owner": "Quân",
         "title": "Episodes có lượt nghe cao hơn trung bình các tập khác cùng Channel",
-        "concepts": "CTE (WITH), Window Function SUM/COUNT OVER (PARTITION BY)",
+        "concepts": "Correlated Subquery",
         "sql": """
-WITH EpisodeListens AS (
-    SELECT e.episode_id, e.channel_id, c.title AS channel_title,
-           e.title AS episode_title, COUNT(lh.history_id) AS listen_count
-    FROM Episodes e
-    INNER JOIN PodcastChannels c ON e.channel_id = c.channel_id
-    LEFT JOIN ListeningHistory lh ON e.episode_id = lh.episode_id
-    GROUP BY e.episode_id, e.channel_id, c.title, e.title
-),
-ChannelPeerAverage AS (
-    SELECT episode_id, channel_id, channel_title, episode_title, listen_count,
-           ROUND(
-               (SUM(listen_count) OVER (PARTITION BY channel_id) - listen_count)
-               / NULLIF(COUNT(*) OVER (PARTITION BY channel_id) - 1, 0),
-               2
-           ) AS avg_other_episodes_listens
-    FROM EpisodeListens
+SELECT t1.ma_tap AS episode_id, t1.ma_kenh AS channel_id, k.tieu_de_kenh AS channel_title,
+       t1.tieu_de_tap AS episode_title,
+       (SELECT COUNT(*) FROM LichSuNghe ls1 WHERE ls1.ma_tap = t1.ma_tap) AS listen_count,
+       ROUND((
+           SELECT COALESCE(AVG(sub.luot_nghe), 0)
+           FROM (
+               SELECT t2.ma_tap, COUNT(ls2.ma_lich_su) AS luot_nghe
+               FROM TapPodcast t2
+               LEFT JOIN LichSuNghe ls2 ON t2.ma_tap = ls2.ma_tap
+               WHERE t2.ma_kenh = t1.ma_kenh AND t2.ma_tap <> t1.ma_tap
+               GROUP BY t2.ma_tap
+           ) AS sub
+       ), 2) AS avg_other_episodes_listens
+FROM TapPodcast t1
+JOIN KenhPodcast k ON t1.ma_kenh = k.ma_kenh
+WHERE (SELECT COUNT(*) FROM LichSuNghe ls1 WHERE ls1.ma_tap = t1.ma_tap) > (
+    SELECT COALESCE(AVG(sub.luot_nghe), 0)
+    FROM (
+        SELECT t2.ma_tap, COUNT(ls2.ma_lich_su) AS luot_nghe
+        FROM TapPodcast t2
+        LEFT JOIN LichSuNghe ls2 ON t2.ma_tap = ls2.ma_tap
+        WHERE t2.ma_kenh = t1.ma_kenh AND t2.ma_tap <> t1.ma_tap
+        GROUP BY t2.ma_tap
+    ) AS sub
 )
-SELECT episode_id, channel_id, channel_title, episode_title,
-       listen_count, avg_other_episodes_listens
-FROM ChannelPeerAverage
-WHERE avg_other_episodes_listens IS NOT NULL
-  AND listen_count > avg_other_episodes_listens
-ORDER BY channel_id ASC, listen_count DESC
+ORDER BY t1.ma_kenh ASC, listen_count DESC
 """,
     },
     "Q7": {
         "id": "Q7",
         "owner": "Mạnh",
         "title": "Users có tài khoản > 6 tháng nhưng chưa từng Subscribe",
-        "concepts": "NOT EXISTS Subquery, TIMESTAMPDIFF, DATE_SUB",
+        "concepts": "NOT IN Subquery, TIMESTAMPDIFF, DATE_SUB",
         "sql": """
-SELECT u.user_id, u.username, u.full_name, u.email, u.created_at,
-       TIMESTAMPDIFF(DAY, u.created_at, NOW()) AS days_since_registered
-FROM Users u
-WHERE u.created_at < DATE_SUB(NOW(), INTERVAL 6 MONTH)
-  AND NOT EXISTS (
-      SELECT 1 FROM Subscriptions s WHERE s.user_id = u.user_id
+SELECT u.ma_nguoi_dung AS user_id, u.ten_dang_nhap AS username, u.ho_ten AS full_name,
+       u.email, u.ngay_tao AS created_at,
+       TIMESTAMPDIFF(DAY, u.ngay_tao, NOW()) AS days_since_registered
+FROM NguoiDung u
+WHERE u.ngay_tao < DATE_SUB(NOW(), INTERVAL 6 MONTH)
+  AND u.ma_nguoi_dung NOT IN (
+      SELECT DISTINCT s.ma_nguoi_dung FROM TheoDoi s WHERE s.ma_nguoi_dung IS NOT NULL
   )
-ORDER BY u.created_at ASC
+ORDER BY u.ngay_tao ASC
 """,
     },
     "Q8": {
         "id": "Q8",
         "owner": "Quang",
         "title": "Doanh thu quảng cáo tích lũy theo Creator qua từng tháng",
-        "concepts": "CTE, SUM, Window Function SUM() OVER (PARTITION BY ... ORDER BY ...)",
+        "concepts": "SUM, Window Function SUM() OVER (PARTITION BY ... ORDER BY ...)",
         "sql": """
 WITH MonthlyCreatorRevenue AS (
-    SELECT cr.creator_id, cr.display_name AS creator_name,
-           DATE_FORMAT(ar.revenue_date, '%Y-%m') AS revenue_month,
-           SUM(ar.impressions) AS monthly_impressions,
-           SUM(ar.amount) AS monthly_revenue
-    FROM AdRevenue ar
-    INNER JOIN AdContracts ac ON ar.contract_id = ac.contract_id
-    INNER JOIN Creators cr ON ac.creator_id = cr.creator_id
-    GROUP BY cr.creator_id, cr.display_name, DATE_FORMAT(ar.revenue_date, '%Y-%m')
+    SELECT cr.ma_creator AS creator_id, cr.ten_hien_thi AS creator_name,
+           DATE_FORMAT(ar.ngay_ghi_nhan, '%Y-%m') AS revenue_month,
+           SUM(ar.luot_hien_thi) AS monthly_impressions,
+           SUM(ar.so_tien) AS monthly_revenue
+    FROM DoanhThuQC ar
+    JOIN HopDongQC ac ON ar.ma_hop_dong = ac.ma_hop_dong
+    JOIN NhaSangTao cr ON ac.ma_creator = cr.ma_creator
+    GROUP BY cr.ma_creator, cr.ten_hien_thi, DATE_FORMAT(ar.ngay_ghi_nhan, '%Y-%m')
 )
 SELECT creator_id, creator_name, revenue_month,
        monthly_impressions, monthly_revenue,
@@ -567,31 +709,31 @@ def reports_overview():
     kpis = db.fetch_one(
         """
         SELECT
-            (SELECT COUNT(*) FROM Users) AS total_users,
-            (SELECT COUNT(*) FROM Creators) AS total_creators,
-            (SELECT COUNT(*) FROM PodcastChannels) AS total_channels,
-            (SELECT COUNT(*) FROM Episodes) AS total_episodes,
-            (SELECT COUNT(*) FROM ListeningHistory) AS total_listens,
-            (SELECT COUNT(*) FROM AdContracts WHERE status = 'active') AS active_contracts,
-            (SELECT COALESCE(SUM(amount), 0) FROM AdRevenue) AS total_ad_revenue,
-            (SELECT COALESCE(SUM(amount), 0) FROM Donations) AS total_donations
+            (SELECT COUNT(*) FROM NguoiDung) AS total_users,
+            (SELECT COUNT(*) FROM NhaSangTao) AS total_creators,
+            (SELECT COUNT(*) FROM KenhPodcast) AS total_channels,
+            (SELECT COUNT(*) FROM TapPodcast) AS total_episodes,
+            (SELECT COUNT(*) FROM LichSuNghe) AS total_listens,
+            (SELECT COUNT(*) FROM HopDongQC WHERE trang_thai = 'hieu_luc') AS active_contracts,
+            (SELECT COALESCE(SUM(so_tien), 0) FROM DoanhThuQC) AS total_ad_revenue,
+            (SELECT COALESCE(SUM(so_tien_ung_ho), 0) FROM UngHo) AS total_donations
         """
     )
 
     top_podcasts = db.fetch_all(
         """
-        SELECT ch.channel_id, ch.title AS channel_title, ch.category,
-               cr.display_name AS creator_name,
-               COUNT(DISTINCT lh.history_id) AS total_listens,
-               COUNT(DISTINCT s.subscription_id) AS subscriber_count,
-               COALESCE(ROUND(AVG(r.score), 2), 0) AS avg_rating
-        FROM PodcastChannels ch
-        INNER JOIN Creators cr ON ch.creator_id = cr.creator_id
-        LEFT JOIN Episodes e ON ch.channel_id = e.channel_id
-        LEFT JOIN ListeningHistory lh ON e.episode_id = lh.episode_id
-        LEFT JOIN Subscriptions s ON ch.channel_id = s.channel_id
-        LEFT JOIN Ratings r ON e.episode_id = r.episode_id
-        GROUP BY ch.channel_id, ch.title, ch.category, cr.display_name
+        SELECT ch.ma_kenh AS channel_id, ch.tieu_de_kenh AS channel_title, ch.the_loai AS category,
+               cr.ten_hien_thi AS creator_name,
+               COUNT(DISTINCT lh.ma_lich_su) AS total_listens,
+               COUNT(DISTINCT s.ma_theo_doi) AS subscriber_count,
+               COALESCE(ROUND(AVG(r.so_sao), 2), 0) AS avg_rating
+        FROM KenhPodcast ch
+        JOIN NhaSangTao cr ON ch.ma_creator = cr.ma_creator
+        LEFT JOIN TapPodcast e ON ch.ma_kenh = e.ma_kenh
+        LEFT JOIN LichSuNghe lh ON e.ma_tap = lh.ma_tap
+        LEFT JOIN TheoDoi s ON ch.ma_kenh = s.ma_kenh
+        LEFT JOIN DanhGia r ON e.ma_tap = r.ma_tap
+        GROUP BY ch.ma_kenh, ch.tieu_de_kenh, ch.the_loai, cr.ten_hien_thi
         ORDER BY total_listens DESC, subscriber_count DESC
         """
     )
@@ -640,7 +782,7 @@ def run_named_query(query_id: str):
 
     params: tuple = ()
     if qid == "Q1":
-        channel_id = request.args.get("channel_id", default=1, type=int)
+        channel_id = request.args.get("channel_id", default="KP0001", type=str).strip()
         params = (channel_id,)
     elif qid == "Q3":
         from datetime import date

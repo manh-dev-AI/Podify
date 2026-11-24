@@ -167,6 +167,21 @@ def execute(sql: str, params: tuple | list | dict | None = None) -> tuple[int, i
         return cur.rowcount, cur.lastrowid
 
 
+def next_id(prefix: str, table: str, column: str) -> str:
+    """Generate the next 4-digit prefixed ID (e.g. ND0026, EP0100) for VARCHAR PKs."""
+    start_pos = len(prefix) + 1
+    row = fetch_one(
+        f"""
+        SELECT COALESCE(MAX(CAST(SUBSTRING({column}, %s) AS UNSIGNED)), 0) AS max_num
+        FROM {table}
+        WHERE {column} LIKE %s
+        """,
+        (start_pos, f"{prefix}%"),
+    )
+    next_num = int((row or {}).get("max_num") or 0) + 1
+    return f"{prefix}{next_num:04d}"
+
+
 def check_health() -> dict:
     """Verify MySQL connectivity and report table count in podify_db."""
     row = fetch_one(

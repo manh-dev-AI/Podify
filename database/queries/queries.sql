@@ -1,14 +1,14 @@
 -- ===================================================================
--- ĐỀ 18: TRIGGER NGHIỆP VỤ + 8 TRUY VẤN DỮ LIỆU (podify_db_vi_2)
--- Khớp 100% với cấu trúc bảng trong full_bang_vi.sql
+-- ĐỀ 18: TRIGGER NGHIỆP VỤ + 8 TRUY VẤN DỮ LIỆU (podify_db)
+-- Dùng tên bảng/cột chuẩn từ full_schema_vi.sql + cú pháp JOIN gọn
 -- ===================================================================
 
-USE podify_db_vi_2;
+USE podify_db;
 
 -- ===================================================================
 -- PHẦN A: TRIGGER KIỂM TRA RÀNG BUỘC LIÊN BẢNG & BUSINESS RULES
--- 1. ThoiDiemChenAds (giay_bat_dau) < ThoiLuongTap (thoi_luong_giay)
--- 2. Không được chèn quá 3 hợp đồng QC vào cùng 1 tập có thời lượng < 20 phút (< 1200s)
+-- 1. giay_bat_dau < thoi_luong_giay
+-- 2. Tập dưới 20 phút (< 1200s) không được chèn quá 3 hợp đồng QC khác nhau
 -- ===================================================================
 DROP TRIGGER IF EXISTS TRG_ViTriQC_KiemTra_BI;
 
@@ -25,13 +25,11 @@ BEGIN
     FROM TapPodcast
     WHERE ma_tap = NEW.ma_tap;
 
-    -- Ràng buộc: ThoiDiemChenAds < ThoiLuongTap
     IF NEW.giay_bat_dau < 0 OR NEW.giay_bat_dau >= v_thoi_luong THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Loi: Thoi diem chen quang cao phai nho hon thoi luong tap podcast!';
     END IF;
 
-    -- Business Rule: Tập dưới 20 phút (< 1200 giây) tối đa 3 hợp đồng quảng cáo khác nhau
     IF v_thoi_luong < 1200 THEN
         SELECT
             COUNT(DISTINCT ma_hop_dong),
@@ -96,7 +94,7 @@ LEFT JOIN TheoDoi td
 GROUP BY k.ma_kenh, k.tieu_de_kenh
 ORDER BY tong_dang_ky_moi_trong_thang DESC;
 
--- 4. HAVING: Tìm các kênh podcast có điểm đánh giá trung bình < 3.0 sao (Kênh chất lượng kém)
+-- 4. HAVING: Tìm các kênh podcast có điểm đánh giá trung bình < 3.0 sao
 SELECT
     k.ma_kenh,
     k.tieu_de_kenh,
@@ -109,7 +107,7 @@ GROUP BY k.ma_kenh, k.tieu_de_kenh
 HAVING AVG(dg.so_sao) < 3.0
 ORDER BY diem_trung_binh ASC;
 
--- 5. OUTER JOIN: Hiển thị tất cả các tập podcast của kênh X ("Tri Thức Vn") và số lượt nghe (kể cả tập 0 lượt nghe)
+-- 5. LEFT JOIN: Hiển thị tất cả tập của kênh "Tri Thức Vn" và số lượt nghe (kể cả tập 0 lượt nghe)
 SELECT
     t.ma_tap,
     k.tieu_de_kenh,
@@ -122,7 +120,7 @@ WHERE k.tieu_de_kenh = N'Tri Thức Vn'
 GROUP BY t.ma_tap, k.tieu_de_kenh, t.tieu_de_tap
 ORDER BY so_luot_nghe DESC, t.ma_tap ASC;
 
--- 6. CORRELATED SUBQUERY: Tìm các tập podcast có số lượt nghe vượt trội so với trung bình các tập KHÁC trong cùng kênh
+-- 6. CORRELATED SUBQUERY: Tìm các tập có lượt nghe cao hơn trung bình các tập KHÁC trong cùng kênh
 SELECT
     t1.ma_tap,
     k.tieu_de_kenh,
@@ -143,11 +141,11 @@ WHERE (SELECT COUNT(*) FROM LichSuNghe ls1 WHERE ls1.ma_tap = t1.ma_tap) > (
 )
 ORDER BY t1.ma_kenh, so_luot_nghe DESC;
 
--- 7. SUBQUERY VỚI NOT IN: Tìm người dùng có tài khoản trên 6 tháng nhưng chưa từng bấm đăng ký bất kỳ kênh nào
+-- 7. SUBQUERY VỚI NOT IN: Tìm người dùng có tài khoản > 6 tháng nhưng chưa từng đăng ký kênh nào
 SELECT
     nd.ma_nguoi_dung,
     nd.ten_dang_nhap,
-    nd.ten,
+    nd.ho_ten,
     nd.email,
     nd.ngay_tao
 FROM NguoiDung nd
@@ -159,27 +157,27 @@ WHERE nd.ngay_tao < DATE_SUB(NOW(), INTERVAL 6 MONTH)
   )
 ORDER BY nd.ngay_tao ASC;
 
--- 8. WINDOW FUNCTIONS: Tính doanh thu tích lũy tiền quảng cáo của Creator theo từng tháng trong năm
+-- 8. WINDOW FUNCTIONS: Tính doanh thu tích lũy quảng cáo của Creator theo từng tháng trong năm
 SELECT
-    ma_nha_sang_tao,
+    ma_creator,
     ten_hien_thi,
     nam,
     thang,
     doanh_thu_thang,
     SUM(doanh_thu_thang) OVER (
-        PARTITION BY ma_nha_sang_tao, nam
+        PARTITION BY ma_creator, nam
         ORDER BY thang ASC
     ) AS doanh_thu_tich_luy
 FROM (
     SELECT
-        nst.ma_nha_sang_tao,
+        nst.ma_creator,
         nst.ten_hien_thi,
         YEAR(dt.ngay_ghi_nhan) AS nam,
         MONTH(dt.ngay_ghi_nhan) AS thang,
         SUM(dt.so_tien) AS doanh_thu_thang
     FROM DoanhThuQC dt
     JOIN HopDongQC hd ON dt.ma_hop_dong = hd.ma_hop_dong
-    JOIN NhaSangTao nst ON hd.ma_nha_sang_tao = nst.ma_nha_sang_tao
-    GROUP BY nst.ma_nha_sang_tao, nst.ten_hien_thi, YEAR(dt.ngay_ghi_nhan), MONTH(dt.ngay_ghi_nhan)
+    JOIN NhaSangTao nst ON hd.ma_creator = nst.ma_creator
+    GROUP BY nst.ma_creator, nst.ten_hien_thi, YEAR(dt.ngay_ghi_nhan), MONTH(dt.ngay_ghi_nhan)
 ) AS bang_thang
-ORDER BY ma_nha_sang_tao, nam, thang;
+ORDER BY ma_creator, nam, thang;

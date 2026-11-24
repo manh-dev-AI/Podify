@@ -25,33 +25,33 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
         self.client = self.app.test_client()
 
         self.creator_user = {
-            "user_id": 1,
-            "username": "nguyenvan_a",
-            "email": "a@example.com",
-            "full_name": "Nguyễn Văn A",
+            "user_id": "ND0001",
+            "username": "manh_trithuc",
+            "email": "manh.trithuc@podify.vn",
+            "full_name": "Nguyễn Đức Mạnh",
             "role": "creator",
             "avatar_url": None,
-            "created_at": "2026-01-17T00:00:00",
-            "creator_id": 1,
-            "creator_display_name": "Tech Talk VN",
+            "created_at": "2025-11-10T00:00:00",
+            "creator_id": "NST0001",
+            "creator_display_name": "Mạnh Tri Thức",
             "creator_bio": "Bio",
             "creator_verified": 1,
         }
         self.normal_user = {
-            "user_id": 4,
-            "username": "pham_d",
-            "email": "d@example.com",
-            "full_name": "Phạm Minh D",
+            "user_id": "ND0007",
+            "username": "nam_nghe",
+            "email": "nam.nghe@podify.vn",
+            "full_name": "Phạm Hải Nam",
             "role": "user",
             "avatar_url": None,
-            "created_at": "2026-09-17T00:00:00",
+            "created_at": "2026-01-10T00:00:00",
             "creator_id": None,
             "creator_display_name": None,
             "creator_bio": None,
             "creator_verified": None,
         }
-        self.creator_token = create_access_token(1, "creator")
-        self.user_token = create_access_token(4, "user")
+        self.creator_token = create_access_token("ND0001", "creator")
+        self.user_token = create_access_token("ND0007", "user")
 
     def test_health_and_frontend_serving(self):
         with self.client.get("/") as res_index:
@@ -64,15 +64,15 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
 
     def test_login_success_and_invalid_password(self):
         pw_hash = generate_password_hash("123456", method="pbkdf2:sha256")
-        with patch("config.db.fetch_one", return_value={"user_id": 1, "password_hash": pw_hash, "role": "creator"}), patch(
+        with patch("config.db.fetch_one", return_value={"user_id": "ND0001", "password_hash": pw_hash, "role": "creator"}), patch(
             "modules.content.routes.load_user_with_creator", return_value=self.creator_user
         ):
-            ok_res = self.client.post("/api/content/auth/login", json={"identifier": "nguyenvan_a", "password": "123456"})
+            ok_res = self.client.post("/api/content/auth/login", json={"identifier": "manh_trithuc", "password": "123456"})
             self.assertEqual(ok_res.status_code, 200)
             self.assertTrue(ok_res.get_json()["ok"])
             self.assertIn("token", ok_res.get_json()["data"])
 
-            bad_res = self.client.post("/api/content/auth/login", json={"identifier": "nguyenvan_a", "password": "wrong"})
+            bad_res = self.client.post("/api/content/auth/login", json={"identifier": "manh_trithuc", "password": "wrong"})
             self.assertEqual(bad_res.status_code, 401)
 
     def test_register_validation_and_duplicate_checks(self):
@@ -113,7 +113,7 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
             self.assertEqual(r3.get_json()["code"], "USERNAME_EXISTS")
 
     def test_auth_guards_and_role_authorization(self):
-        res_unauth = self.client.post("/api/listening/subscriptions", json={"channel_id": 1})
+        res_unauth = self.client.post("/api/listening/subscriptions", json={"channel_id": "KP0001"})
         self.assertEqual(res_unauth.status_code, 401)
 
         with patch("common.auth.load_user_with_creator", return_value=self.normal_user):
@@ -126,15 +126,15 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
 
     def test_duplicate_subscription_returns_409(self):
         with patch("common.auth.load_user_with_creator", return_value=self.normal_user), patch(
-            "config.db.fetch_one", return_value={"channel_id": 1, "title": "Lập Trình Không Khó"}
-        ), patch(
+            "config.db.fetch_one", return_value={"channel_id": "KP0001", "title": "Tư Duy Sâu"}
+        ), patch("config.db.next_id", return_value="TD9999"), patch(
             "config.db.execute",
-            side_effect=DatabaseDuplicateError("Duplicate entry '4-1' for key 'UQ_Subscriptions_User_Channel'"),
+            side_effect=DatabaseDuplicateError("Duplicate entry 'ND0007-KP0001' for key 'UQ_TheoDoi'"),
         ):
             res = self.client.post(
                 "/api/listening/subscriptions",
                 headers={"Authorization": f"Bearer {self.user_token}"},
-                json={"channel_id": 1},
+                json={"channel_id": "KP0001"},
             )
             self.assertEqual(res.status_code, 409)
             self.assertEqual(res.get_json()["code"], "DB_DUPLICATE_ENTRY")
@@ -144,7 +144,7 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
             res = self.client.post(
                 "/api/listening/ratings",
                 headers={"Authorization": f"Bearer {self.user_token}"},
-                json={"episode_id": 1, "score": 6},
+                json={"episode_id": "EP0001", "score": 6},
             )
             self.assertEqual(res.status_code, 400)
 
@@ -152,15 +152,15 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
         with patch("common.auth.load_user_with_creator", return_value=self.creator_user), patch(
             "config.db.fetch_one",
             side_effect=[
-                {"duration_seconds": 600, "creator_id": 1},
-                {"contract_id": 4, "creator_id": 1},
+                {"duration_seconds": 600, "creator_id": "NST0001"},
+                {"contract_id": "HD0004", "creator_id": "NST0001"},
                 {"distinct_contracts": 3, "already_attached": 0},
             ],
         ):
             res = self.client.post(
                 "/api/analytics/slots",
                 headers={"Authorization": f"Bearer {self.creator_token}"},
-                json={"contract_id": 4, "episode_id": 3, "slot_position": "mid-roll", "start_offset_seconds": 120},
+                json={"contract_id": "HD0004", "episode_id": "EP0003", "slot_position": "mid-roll", "start_offset_seconds": 120},
             )
             self.assertEqual(res.status_code, 400)
             body = res.get_json()
@@ -171,19 +171,19 @@ class TestPodifyAPIEndpoints(unittest.TestCase):
             "config.db.fetch_one",
             side_effect=[
                 {
-                    "episode_id": 4,
-                    "title": "Ep 4",
+                    "episode_id": "EP0005",
+                    "title": "Ep 5",
                     "description": None,
-                    "audio_url": "/assets/audio/sample_4.mp3",
+                    "audio_url": "/assets/audio/sample_5.mp3",
                     "duration_seconds": 2400,
                     "status": "published",
-                    "creator_id": 1,
+                    "creator_id": "NST0001",
                 },
                 {"distinct_contracts": 4},
             ],
         ):
             res = self.client.put(
-                "/api/content/episodes/4",
+                "/api/content/episodes/EP0005",
                 headers={"Authorization": f"Bearer {self.creator_token}"},
                 json={"duration_seconds": 900},
             )

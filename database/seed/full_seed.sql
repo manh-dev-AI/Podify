@@ -1,164 +1,314 @@
 -- ===================================================================
--- Podify Official Complete Seed Script (MySQL 8.0 - All 12 Tables)
--- Run order: Execute full_schema.sql + triggers/01_ad_contract_limit.sql FIRST
+-- Dữ liệu mẫu phong phú (~270 dòng) cho podify_db
+-- Mã định danh 4 số đặc trưng: ND0001, NST0001, KP0001, EP0001..EP0099,
+-- TD0001, LS0001, DG0001, UH0001, QC0001, HD0001, VT0001, DT0001
 -- ===================================================================
 
 USE podify_db;
 
--- Làm sạch dữ liệu cũ và reset AUTO_INCREMENT trước khi nạp mẫu
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE Donations;
-TRUNCATE TABLE AdRevenue;
-TRUNCATE TABLE AdSlots;
-TRUNCATE TABLE AdContracts;
-TRUNCATE TABLE Advertisements;
-TRUNCATE TABLE Ratings;
-TRUNCATE TABLE ListeningHistory;
-TRUNCATE TABLE Subscriptions;
-TRUNCATE TABLE Episodes;
-TRUNCATE TABLE PodcastChannels;
-TRUNCATE TABLE Creators;
-TRUNCATE TABLE Users;
-SET FOREIGN_KEY_CHECKS = 1;
+-- 1. NguoiDung (25 dòng: ND0001 -> ND0025)
+INSERT INTO NguoiDung (ma_nguoi_dung, ten_dang_nhap, email, mat_khau, ho_ten, vai_tro, ngay_tao) VALUES
+('ND0001', 'manh_trithuc', 'manh@trithucvn.vn', 'hash_123456', N'Nguyễn Hữu Mạnh', 'nha_sang_tao', DATE_SUB(NOW(), INTERVAL 14 MONTH)),
+('ND0002', 'minh_ai', 'minh@aipodcast.vn', 'hash_123456', N'Trần Quang Minh', 'nha_sang_tao', DATE_SUB(NOW(), INTERVAL 12 MONTH)),
+('ND0003', 'lan_radio', 'lan@radio.vn', 'hash_123456', N'Lê Thị Lan', 'nha_sang_tao', DATE_SUB(NOW(), INTERVAL 11 MONTH)),
+('ND0004', 'tuan_kinhte', 'tuan@kinhte.vn', 'hash_123456', N'Phạm Anh Tuấn', 'nha_sang_tao', DATE_SUB(NOW(), INTERVAL 10 MONTH)),
+('ND0005', 'ha_tamly', 'ha@tamly.vn', 'hash_123456', N'Vũ Thu Hà', 'nha_sang_tao', DATE_SUB(NOW(), INTERVAL 9 MONTH)),
+('ND0006', 'khoa_lichsu', 'khoa@lichsu.vn', 'hash_123456', N'Đặng Đăng Khoa', 'nha_sang_tao', DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+('ND0007', 'nam_nghe', 'nam07@gmail.com', 'hash_123456', N'Phạm Hoài Nam', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+('ND0008', 'linh_nghe', 'linh08@gmail.com', 'hash_123456', N'Vũ Khánh Linh', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+('ND0009', 'duc_dev', 'duc09@gmail.com', 'hash_123456', N'Nguyễn Minh Đức', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+('ND0010', 'thao_sv', 'thao10@gmail.com', 'hash_123456', N'Trần Phương Thảo', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+('ND0011', 'huy_it', 'huy11@gmail.com', 'hash_123456', N'Lê Gia Huy', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 1 MONTH)),
+('ND0012', 'mai_design', 'mai12@gmail.com', 'hash_123456', N'Hoàng Ngọc Mai', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+('ND0013', 'son_data', 'son13@gmail.com', 'hash_123456', N'Bùi Thái Sơn', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+('ND0014', 'vy_media', 'vy14@gmail.com', 'hash_123456', N'Đỗ Tường Vy', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+('ND0015', 'khang_code', 'khang15@gmail.com', 'hash_123456', N'Phan Bảo Khang', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+('ND0016', 'nhi_book', 'nhi16@gmail.com', 'hash_123456', N'Ngô Yến Nhi', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 1 MONTH)),
+('ND0017', 'long_tech', 'long17@gmail.com', 'hash_123456', N'Trịnh Hoàng Long', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+('ND0018', 'anh_mkt', 'anh18@gmail.com', 'hash_123456', N'Dương Quỳnh Anh', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+('ND0019', 'dat_student', 'dat19@gmail.com', 'hash_123456', N'Lý Tiến Đạt', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+('ND0020', 'hung_cu', 'hung20@gmail.com', 'hash_123456', N'Đỗ Mạnh Hùng', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+('ND0021', 'trang_cu', 'trang21@gmail.com', 'hash_123456', N'Ngô Thu Trang', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 10 MONTH)),
+('ND0022', 'quang_cu', 'quang22@gmail.com', 'hash_123456', N'Võ Nhật Quang', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 9 MONTH)),
+('ND0023', 'yen_cu', 'yen23@gmail.com', 'hash_123456', N'Tạ Hải Yến', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+('ND0024', 'binh_cu', 'binh24@gmail.com', 'hash_123456', N'Chu Thanh Bình', 'nguoi_nghe', DATE_SUB(NOW(), INTERVAL 13 MONTH)),
+('ND0025', 'admin_podify', 'admin@podify.vn', 'hash_123456', N'Quản Trị Podify', 'quan_tri', DATE_SUB(NOW(), INTERVAL 15 MONTH));
 
--- ===================================================================
--- 1. MODULE 01: CONTENT MANAGEMENT
--- ===================================================================
+-- 2. NhaSangTao (6 dòng: NST0001 -> NST0006)
+INSERT INTO NhaSangTao (ma_creator, ma_nguoi_dung, ten_hien_thi, tieu_su, da_xac_minh) VALUES
+('NST0001', 'ND0001', N'Tri Thức Studio', N'Chia sẻ tri thức khoa học, tư duy phản biện và kỹ năng tự học.', TRUE),
+('NST0002', 'ND0002', N'Tech & AI Vietnam', N'Bàn luận sâu về lập trình, cơ sở dữ liệu và trí tuệ nhân tạo.', TRUE),
+('NST0003', 'ND0003', N'Góc Đêm Radio', N'Tâm sự đêm khuya và âm nhạc thư giãn nhẹ nhàng.', FALSE),
+('NST0004', 'ND0004', N'Tài Chính Thông Minh', N'Kiến thức kinh tế, đầu tư và quản lý tài chính cá nhân.', TRUE),
+('NST0005', 'ND0005', N'Chữa Lành Tâm Hồn', N'Podcast tâm lý học ứng dụng và cân bằng cảm xúc.', TRUE),
+('NST0006', 'ND0006', N'Dòng Chảy Lịch Sử', N'Kể chuyện lịch sử Việt Nam và thế giới sinh động.', FALSE);
 
-INSERT INTO Users (username, email, password_hash, full_name, role, created_at)
-VALUES
-('nguyenvan_a', 'a@example.com', 'pbkdf2:sha256:1000000$YKnNiqznvHlaJuBm$53b3b308e36c5f85ee17865fe77abe46e8170ad6671d4d77c65ed59727d81895', 'Nguyễn Văn A', 'creator', DATE_SUB(NOW(), INTERVAL 10 MONTH)),
-('tranthi_b',   'b@example.com', 'pbkdf2:sha256:1000000$YKnNiqznvHlaJuBm$53b3b308e36c5f85ee17865fe77abe46e8170ad6671d4d77c65ed59727d81895', 'Trần Thị B',   'creator', DATE_SUB(NOW(), INTERVAL 8 MONTH)),
-('le_c',        'c@example.com', 'pbkdf2:sha256:1000000$YKnNiqznvHlaJuBm$53b3b308e36c5f85ee17865fe77abe46e8170ad6671d4d77c65ed59727d81895', 'Lê Văn C',     'user',    DATE_SUB(NOW(), INTERVAL 7 MONTH)),
-('pham_d',      'd@example.com', 'pbkdf2:sha256:1000000$YKnNiqznvHlaJuBm$53b3b308e36c5f85ee17865fe77abe46e8170ad6671d4d77c65ed59727d81895', 'Phạm Minh D',  'user',    DATE_SUB(NOW(), INTERVAL 2 MONTH)),
-('hoang_e',     'e@example.com', 'pbkdf2:sha256:1000000$YKnNiqznvHlaJuBm$53b3b308e36c5f85ee17865fe77abe46e8170ad6671d4d77c65ed59727d81895', 'Hoàng Lan E',  'user',    NOW()),
-('minh_f',      'f@example.com', 'pbkdf2:sha256:1000000$YKnNiqznvHlaJuBm$53b3b308e36c5f85ee17865fe77abe46e8170ad6671d4d77c65ed59727d81895', 'Trần Minh F',  'user',    DATE_SUB(NOW(), INTERVAL 3 MONTH));
+-- 3. KenhPodcast (10 dòng: KP0001 -> KP0010)
+INSERT INTO KenhPodcast (ma_kenh, ma_creator, tieu_de_kenh, the_loai, mo_ta, anh_bia) VALUES
+('KP0001', 'NST0001', N'Tri Thức Vn', N'Giáo dục & Khoa học', N'Kênh podcast chia sẻ tri thức cô đọng, dễ hiểu mỗi ngày.', 'https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg'),
+('KP0002', 'NST0001', N'Sách Hay Mỗi Tuần', N'Giáo dục', N'Tóm tắt và bình luận những cuốn sách kinh điển.', 'https://i.ytimg.com/vi/H14bBuluwB8/hqdefault.jpg'),
+('KP0003', 'NST0002', N'Công Nghệ & AI', N'Công nghệ', N'Cập nhật xu hướng AI, phần mềm và câu chuyện nghề IT.', 'https://i.ytimg.com/vi/aircAruvnKk/hqdefault.jpg'),
+('KP0004', 'NST0002', N'Lập Trình Thực Chiến', N'Công nghệ', N'Kinh nghiệm thiết kế CSDL, Backend và hệ thống lớn.', 'https://i.ytimg.com/vi/HXV3zeQKqGY/hqdefault.jpg'),
+('KP0005', 'NST0003', N'Góc Đêm Khuya', N'Đời sống', N'Những mẩu chuyện ngắn trước khi đi ngủ.', 'https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg'),
+('KP0006', 'NST0004', N'Kinh Tế Bỏ Túi', N'Kinh doanh', N'Giải mã dòng tiền, lạm phát và tài chính cá nhân.', 'https://i.ytimg.com/vi/PHe0bXAIuk0/hqdefault.jpg'),
+('KP0007', 'NST0004', N'Khởi Nghiệp 4.0', N'Kinh doanh', N'Bài học gọi vốn và vận hành doanh nghiệp trẻ.', 'https://i.ytimg.com/vi/8S0FDjFBj8o/hqdefault.jpg'),
+('KP0008', 'NST0005', N'Tâm Lý Học Đời Thường', N'Tâm lý', N'Hiểu bản thân và xây dựng thói quen bền vững.', 'https://i.ytimg.com/vi/VQ_21_9sV4E/hqdefault.jpg'),
+('KP0009', 'NST0006', N'Sử Việt Qua Góc Nhìn Mới', N'Lịch sử', N'Các nhân vật và dấu mốc quan trọng trong lịch sử.', 'https://i.ytimg.com/vi/r8fSTn3a4dQ/hqdefault.jpg'),
+('KP0010', 'NST0003', N'Radio Thử Nghiệm', N'Giải trí', N'Kênh thử nghiệm định dạng âm thanh mới.', 'https://i.ytimg.com/vi/ScMzIvxBSi4/hqdefault.jpg');
 
-INSERT INTO Creators (user_id, display_name, bio, verified)
-VALUES
-(1, 'Tech Talk VN', 'Kênh chia sẻ kiến thức công nghệ, cơ sở dữ liệu và lập trình phần mềm.', TRUE),
-(2, 'Góc Tâm Sự', 'Những câu chuyện chữa lành, kỹ năng sống và cuộc sống thường nhật.', TRUE);
+-- 4. TapPodcast (30 dòng: EP0001 -> EP0029 + EP0099)
+INSERT INTO TapPodcast (ma_tap, ma_kenh, tieu_de_tap, thoi_luong_giay, duong_dan_audio, trang_thai, ngay_phat_hanh) VALUES
+('EP0001', 'KP0001', N'Tư duy hệ thống trong 20 phút', 1200, 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 30 DAY)),
+('EP0002', 'KP0001', N'Bí mật của trí nhớ dài hạn', 1500, 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 26 DAY)),
+('EP0003', 'KP0001', N'Nghệ thuật đặt câu hỏi phản biện', 1680, 'https://www.youtube.com/watch?v=H14bBuluwB8', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 22 DAY)),
+('EP0004', 'KP0001', N'3 thói quen đọc sách hiệu quả', 600, 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 18 DAY)),
+('EP0005', 'KP0001', N'Lịch sử khoa học hiện đại toàn tập', 2400, 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 14 DAY)),
+('EP0006', 'KP0001', N'Kỹ năng ghi chép thông minh (Mới đăng)', 1080, 'https://www.youtube.com/watch?v=aircAruvnKk', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('EP0007', 'KP0001', N'Tập trung sâu trong kỷ nguyên số (Mới đăng)', 1350, 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 0 DAY)),
+('EP0008', 'KP0002', N'Đọc vị tâm lý qua Tư Duy Nhanh và Chậm', 1400, 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 28 DAY)),
+('EP0009', 'KP0002', N'Bài học từ cuốn Atomic Habits', 1150, 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 20 DAY)),
+('EP0010', 'KP0002', N'Sapiens: Lược sử loài người phần 1', 2100, 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 12 DAY)),
+('EP0099', 'KP0003', N'EP99 - Kỷ nguyên AI Agent 2026', 1800, 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 15 DAY)),
+('EP0011', 'KP0003', N'Tập ngắn: Nhập môn SQL trong 15 phút', 900, 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 11 DAY)),
+('EP0012', 'KP0003', N'Mô hình ngôn ngữ lớn hoạt động ra sao', 1950, 'https://www.youtube.com/watch?v=H14bBuluwB8', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('EP0013', 'KP0003', N'Tự động hóa công việc với Python', 1320, 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('EP0014', 'KP0004', N'Chuẩn hóa 3NF từ bài toán thực tế', 1560, 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 25 DAY)),
+('EP0015', 'KP0004', N'Tối ưu truy vấn với Index trong MySQL', 1740, 'https://www.youtube.com/watch?v=aircAruvnKk', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 19 DAY)),
+('EP0016', 'KP0004', N'Thiết kế RESTful API chuẩn cho người mới', 1260, 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('EP0017', 'KP0005', N'Chuyện đêm mưa Sài Gòn', 1100, 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 24 DAY)),
+('EP0018', 'KP0005', N'Những lá thư chưa kịp gửi', 980, 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 16 DAY)),
+('EP0019', 'KP0006', N'Quản lý chi tiêu theo quy tắc 50-30-20', 1250, 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 27 DAY)),
+('EP0020', 'KP0006', N'Lạm phát ảnh hưởng thế nào tới sinh viên', 1480, 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 17 DAY)),
+('EP0021', 'KP0006', N'Quỹ dự phòng cá nhân cần bao nhiêu', 1020, 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('EP0022', 'KP0007', N'Tìm ý tưởng sản phẩm từ nỗi đau người dùng', 1620, 'https://www.youtube.com/watch?v=H14bBuluwB8', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 21 DAY)),
+('EP0023', 'KP0007', N'Sai lầm phổ biến khi làm MVP', 1380, 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 13 DAY)),
+('EP0024', 'KP0008', N'Vượt qua hội chứng kẻ mạo danh', 1440, 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 23 DAY)),
+('EP0025', 'KP0008', N'Giấc ngủ và hiệu suất học tập', 1180, 'https://www.youtube.com/watch?v=aircAruvnKk', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 15 DAY)),
+('EP0026', 'KP0008', N'Nghệ thuật lắng nghe chủ động', 1290, 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('EP0027', 'KP0009', N'Chiến thắng Bạch Đằng năm 938', 1700, 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 19 DAY)),
+('EP0028', 'KP0009', N'Thăng Long ngàn năm văn hiến', 1850, 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 8 DAY)),
+('EP0029', 'KP0010', N'Số thử nghiệm âm thanh ASMR', 780, 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'da_phat_hanh', DATE_SUB(NOW(), INTERVAL 14 DAY));
 
-INSERT INTO PodcastChannels (creator_id, title, description, category)
-VALUES
-(1, 'Lập Trình Không Khó', 'Học lập trình và thiết kế cơ sở dữ liệu từ con số 0 cùng chuyên gia.', 'Công nghệ'),
-(1, 'AI & Tương Lai', 'Khám phá thế giới trí tuệ nhân tạo và ứng dụng thực tiễn.', 'Công nghệ'),
-(2, 'Trà Chiều Radio', 'Những câu chuyện lắng đọng mỗi buổi chiều cuối tuần.', 'Đời sống');
+-- 5. TheoDoi (35 dòng: TD0001 -> TD0035; ND0020..ND0024 không có ở đây để test Q7)
+INSERT INTO TheoDoi (ma_theo_doi, ma_nguoi_dung, ma_kenh, ngay_theo_doi, bat_thong_bao) VALUES
+('TD0001', 'ND0007', 'KP0001', DATE_SUB(NOW(), INTERVAL 2 DAY), TRUE),
+('TD0002', 'ND0008', 'KP0001', DATE_SUB(NOW(), INTERVAL 4 DAY), FALSE),
+('TD0003', 'ND0009', 'KP0001', DATE_SUB(NOW(), INTERVAL 6 DAY), TRUE),
+('TD0004', 'ND0010', 'KP0001', DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+('TD0005', 'ND0011', 'KP0001', DATE_SUB(NOW(), INTERVAL 3 DAY), TRUE),
+('TD0006', 'ND0012', 'KP0001', DATE_SUB(NOW(), INTERVAL 8 DAY), FALSE),
+('TD0007', 'ND0013', 'KP0001', DATE_SUB(NOW(), INTERVAL 45 DAY), TRUE),
+('TD0008', 'ND0007', 'KP0003', DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+('TD0009', 'ND0009', 'KP0003', DATE_SUB(NOW(), INTERVAL 5 DAY), TRUE),
+('TD0010', 'ND0011', 'KP0003', DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+('TD0011', 'ND0013', 'KP0003', DATE_SUB(NOW(), INTERVAL 7 DAY), TRUE),
+('TD0012', 'ND0015', 'KP0003', DATE_SUB(NOW(), INTERVAL 3 DAY), FALSE),
+('TD0013', 'ND0017', 'KP0003', DATE_SUB(NOW(), INTERVAL 50 DAY), TRUE),
+('TD0014', 'ND0008', 'KP0002', DATE_SUB(NOW(), INTERVAL 4 DAY), FALSE),
+('TD0015', 'ND0010', 'KP0002', DATE_SUB(NOW(), INTERVAL 6 DAY), TRUE),
+('TD0016', 'ND0016', 'KP0002', DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+('TD0017', 'ND0009', 'KP0004', DATE_SUB(NOW(), INTERVAL 3 DAY), TRUE),
+('TD0018', 'ND0011', 'KP0004', DATE_SUB(NOW(), INTERVAL 5 DAY), FALSE),
+('TD0019', 'ND0015', 'KP0004', DATE_SUB(NOW(), INTERVAL 1 DAY), TRUE),
+('TD0020', 'ND0017', 'KP0004', DATE_SUB(NOW(), INTERVAL 9 DAY), FALSE),
+('TD0021', 'ND0012', 'KP0005', DATE_SUB(NOW(), INTERVAL 40 DAY), TRUE),
+('TD0022', 'ND0014', 'KP0005', DATE_SUB(NOW(), INTERVAL 5 DAY), FALSE),
+('TD0023', 'ND0007', 'KP0006', DATE_SUB(NOW(), INTERVAL 2 DAY), TRUE),
+('TD0024', 'ND0010', 'KP0006', DATE_SUB(NOW(), INTERVAL 7 DAY), FALSE),
+('TD0025', 'ND0018', 'KP0006', DATE_SUB(NOW(), INTERVAL 4 DAY), TRUE),
+('TD0026', 'ND0019', 'KP0006', DATE_SUB(NOW(), INTERVAL 1 DAY), FALSE),
+('TD0027', 'ND0013', 'KP0007', DATE_SUB(NOW(), INTERVAL 3 DAY), TRUE),
+('TD0028', 'ND0018', 'KP0007', DATE_SUB(NOW(), INTERVAL 6 DAY), FALSE),
+('TD0029', 'ND0008', 'KP0008', DATE_SUB(NOW(), INTERVAL 2 DAY), TRUE),
+('TD0030', 'ND0012', 'KP0008', DATE_SUB(NOW(), INTERVAL 5 DAY), FALSE),
+('TD0031', 'ND0014', 'KP0008', DATE_SUB(NOW(), INTERVAL 1 DAY), TRUE),
+('TD0032', 'ND0016', 'KP0008', DATE_SUB(NOW(), INTERVAL 35 DAY), FALSE),
+('TD0033', 'ND0015', 'KP0009', DATE_SUB(NOW(), INTERVAL 4 DAY), TRUE),
+('TD0034', 'ND0019', 'KP0009', DATE_SUB(NOW(), INTERVAL 2 DAY), FALSE),
+('TD0035', 'ND0001', 'KP0003', DATE_SUB(NOW(), INTERVAL 10 DAY), TRUE);
 
-INSERT INTO Episodes (channel_id, title, description, audio_url, duration_seconds, status, published_at)
-VALUES
-(1, 'Tập 1: Nhập môn Database và MySQL', 'Tổng quan về cơ sở dữ liệu quan hệ và cách thiết kế bảng.', '/assets/audio/sample_1.mp3', 1200, 'published', DATE_SUB(NOW(), INTERVAL 20 DAY)),
-(1, 'Tập 2: Chuẩn hóa 3NF trong thực tế', 'Các bước đưa một lược đồ quan hệ về dạng chuẩn 3NF.', '/assets/audio/sample_2.mp3', 1500, 'published', DATE_SUB(NOW(), INTERVAL 15 DAY)),
-(1, 'Tập 3: Viết câu lệnh SELECT nâng cao', 'Hướng dẫn sử dụng JOIN, GROUP BY và Subquery.', '/assets/audio/sample_3.mp3', 600, 'published', DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(1, 'Tập 4: Tối ưu chỉ mục Indexes', 'Cách Index tăng tốc độ truy vấn trong cơ sở dữ liệu lớn.', '/assets/audio/sample_4.mp3', 2400, 'published', DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(2, 'EP99 - Xu hướng AI năm 2026', 'Tập đặc biệt bàn về tương lai công nghệ AI và Agent.', '/assets/audio/sample_ep99.mp3', 1800, 'published', DATE_SUB(NOW(), INTERVAL 8 DAY)),
-(3, 'Bình yên nơi góc phố', 'Những giai điệu nhẹ nhàng thư giãn — Bản nhạc Dựa Vai Anh.', '/assets/audio/nhac_dua_vai_anh.mp3', 950, 'published', DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(2, 'EP98 - LLM và RAG thực chiến', 'Kiến trúc truy xuất tăng cường và triển khai hệ thống AI doanh nghiệp.', '/assets/audio/sample_6.mp3', 1320, 'published', DATE_SUB(NOW(), INTERVAL 14 DAY)),
-(3, 'Đêm mưa nghe lại chuyện cũ', 'Giai điệu cảm xúc về tình cảm gia đình — Bản nhạc Ước Mơ Của Mẹ.', '/assets/audio/nhac_uoc_mo_cua_me.mp3', 1100, 'published', DATE_SUB(NOW(), INTERVAL 9 DAY)),
-(3, 'Sống chậm lại giữa dòng đời vội vã', 'Podcast tâm sự về cuộc sống, cân bằng áp lực và tìm lại sự bình an trong tâm hồn.', '/assets/audio/podcast_cuoc_song.mp3', 960, 'published', DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(3, 'Tình yêu trưởng thành: Bình yên là khi hiểu nhau', 'Podcast chia sẻ về tình yêu, sự lắng nghe và đồng hành bền lâu qua năm tháng.', '/assets/audio/podcast_tinh_yeu.mp3', 1080, 'published', DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(3, 'Hoài bão tuổi trẻ: Dám mơ lớn và kiên trì bước tiếp', 'Podcast truyền cảm hứng về ước mơ, hoài bão con người và bản lĩnh vượt qua thử thách.', '/assets/audio/podcast_hoai_bao.mp3', 1260, 'published', NOW());
+-- 6. LichSuNghe (56 dòng: LS0001 -> LS0056)
+INSERT INTO LichSuNghe (ma_lich_su, ma_nguoi_dung, ma_tap, vi_tri_nghe_giay, da_nghe_xong) VALUES
+('LS0001', 'ND0007', 'EP0001', 1200, TRUE),
+('LS0002', 'ND0008', 'EP0001', 1200, TRUE),
+('LS0003', 'ND0009', 'EP0001', 1050, FALSE),
+('LS0004', 'ND0010', 'EP0001', 1200, TRUE),
+('LS0005', 'ND0011', 'EP0001', 980, FALSE),
+('LS0006', 'ND0012', 'EP0001', 1200, TRUE),
+('LS0007', 'ND0013', 'EP0001', 1200, TRUE),
+('LS0008', 'ND0014', 'EP0001', 600, FALSE),
+('LS0009', 'ND0007', 'EP0002', 1500, TRUE),
+('LS0010', 'ND0008', 'EP0002', 1100, FALSE),
+('LS0011', 'ND0010', 'EP0002', 1500, TRUE),
+('LS0012', 'ND0009', 'EP0003', 1680, TRUE),
+('LS0013', 'ND0012', 'EP0003', 840, FALSE),
+('LS0014', 'ND0011', 'EP0004', 600, TRUE),
+('LS0015', 'ND0013', 'EP0005', 1200, FALSE),
+('LS0016', 'ND0008', 'EP0008', 1400, TRUE),
+('LS0017', 'ND0010', 'EP0008', 1400, TRUE),
+('LS0018', 'ND0016', 'EP0008', 900, FALSE),
+('LS0019', 'ND0012', 'EP0008', 1400, TRUE),
+('LS0020', 'ND0016', 'EP0009', 1150, TRUE),
+('LS0021', 'ND0008', 'EP0010', 1000, FALSE),
+('LS0022', 'ND0007', 'EP0099', 1800, TRUE),
+('LS0023', 'ND0009', 'EP0099', 1800, TRUE),
+('LS0024', 'ND0011', 'EP0099', 1500, FALSE),
+('LS0025', 'ND0013', 'EP0099', 1800, TRUE),
+('LS0026', 'ND0015', 'EP0099', 1800, TRUE),
+('LS0027', 'ND0017', 'EP0099', 1200, FALSE),
+('LS0028', 'ND0001', 'EP0099', 1800, TRUE),
+('LS0029', 'ND0009', 'EP0011', 900, TRUE),
+('LS0030', 'ND0015', 'EP0011', 450, FALSE),
+('LS0031', 'ND0011', 'EP0012', 1950, TRUE),
+('LS0032', 'ND0017', 'EP0012', 900, FALSE),
+('LS0033', 'ND0013', 'EP0013', 1320, TRUE),
+('LS0034', 'ND0009', 'EP0014', 1560, TRUE),
+('LS0035', 'ND0011', 'EP0014', 1560, TRUE),
+('LS0036', 'ND0015', 'EP0014', 1560, TRUE),
+('LS0037', 'ND0017', 'EP0014', 1200, FALSE),
+('LS0038', 'ND0013', 'EP0014', 1560, TRUE),
+('LS0039', 'ND0009', 'EP0015', 1740, TRUE),
+('LS0040', 'ND0015', 'EP0015', 800, FALSE),
+('LS0041', 'ND0011', 'EP0016', 1260, TRUE),
+('LS0042', 'ND0012', 'EP0017', 1100, TRUE),
+('LS0043', 'ND0014', 'EP0017', 500, FALSE),
+('LS0044', 'ND0014', 'EP0018', 980, TRUE),
+('LS0045', 'ND0007', 'EP0019', 1250, TRUE),
+('LS0046', 'ND0010', 'EP0019', 1250, TRUE),
+('LS0047', 'ND0018', 'EP0019', 1250, TRUE),
+('LS0048', 'ND0019', 'EP0019', 900, FALSE),
+('LS0049', 'ND0018', 'EP0020', 1480, TRUE),
+('LS0050', 'ND0013', 'EP0022', 1620, TRUE),
+('LS0051', 'ND0018', 'EP0022', 1000, FALSE),
+('LS0052', 'ND0008', 'EP0024', 1440, TRUE),
+('LS0053', 'ND0012', 'EP0024', 1440, TRUE),
+('LS0054', 'ND0016', 'EP0024', 1440, TRUE),
+('LS0055', 'ND0015', 'EP0027', 1700, TRUE),
+('LS0056', 'ND0014', 'EP0029', 400, FALSE);
 
--- ===================================================================
--- 2. MODULE 02: LISTENING & USER INTERACTION
--- ===================================================================
+-- 7. DanhGia (30 dòng: DG0001 -> DG0030)
+INSERT INTO DanhGia (ma_danh_gia, ma_nguoi_dung, ma_tap, so_sao, binh_luan) VALUES
+('DG0001', 'ND0007', 'EP0001', 5, N'Nội dung cô đọng, rất dễ áp dụng.'),
+('DG0002', 'ND0008', 'EP0001', 5, N'Giọng đọc truyền cảm, cuốn hút.'),
+('DG0003', 'ND0009', 'EP0001', 4, N'Ví dụ thực tế rõ ràng.'),
+('DG0004', 'ND0010', 'EP0002', 5, N'Rất hữu ích cho mùa thi.'),
+('DG0005', 'ND0011', 'EP0002', 4, N'Hay và ngắn gọn.'),
+('DG0006', 'ND0012', 'EP0003', 5, N'Đáng nghe đi nghe lại.'),
+('DG0007', 'ND0008', 'EP0008', 5, N'Tóm tắt sách rất sát ý tác giả.'),
+('DG0008', 'ND0016', 'EP0008', 4, N'Dễ hiểu cho người bận rộn.'),
+('DG0009', 'ND0007', 'EP0099', 5, N'Tập EP99 phân tích AI rất sâu sắc.'),
+('DG0010', 'ND0009', 'EP0099', 5, N'Cập nhật kiến thức cực nhanh.'),
+('DG0011', 'ND0011', 'EP0099', 4, N'Rất thích phần nói về AI Agent.'),
+('DG0012', 'ND0013', 'EP0011', 5, N'15 phút mà nắm được cốt lõi SQL.'),
+('DG0013', 'ND0015', 'EP0014', 5, N'Giải thích 3NF quá dễ hiểu.'),
+('DG0014', 'ND0017', 'EP0014', 4, N'Ví dụ bảng trực quan.'),
+('DG0015', 'ND0009', 'EP0015', 5, N'Phần tối ưu Index cực chất lượng.'),
+('DG0016', 'ND0012', 'EP0017', 2, N'Âm thanh bị rè ở đoạn giữa.'),
+('DG0017', 'ND0014', 'EP0017', 2, N'Nhạc nền hơi to so với giọng nói.'),
+('DG0018', 'ND0016', 'EP0018', 2, N'Nội dung còn hơi lan man.'),
+('DG0019', 'ND0007', 'EP0019', 5, N'Quy tắc 50-30-20 rất thực tế.'),
+('DG0020', 'ND0018', 'EP0019', 4, N'Phù hợp cho sinh viên.'),
+('DG0021', 'ND0019', 'EP0020', 4, N'Giải thích lạm phát dễ hiểu.'),
+('DG0022', 'ND0013', 'EP0022', 5, N'Rất nhiều bài học khởi nghiệp hay.'),
+('DG0023', 'ND0018', 'EP0022', 4, N'Chia sẻ chân thành.'),
+('DG0024', 'ND0008', 'EP0024', 5, N'Nghe xong thấy nhẹ lòng hơn hẳn.'),
+('DG0025', 'ND0012', 'EP0024', 5, N'Chủ đề tâm lý rất gần gũi.'),
+('DG0026', 'ND0015', 'EP0027', 4, N'Kể chuyện lịch sử lôi cuốn.'),
+('DG0027', 'ND0019', 'EP0027', 5, N'Tự hào lịch sử Việt Nam.'),
+('DG0028', 'ND0014', 'EP0029', 1, N'Bị lỗi mất tiếng đoạn cuối.'),
+('DG0029', 'ND0010', 'EP0029', 2, N'Chất lượng thu âm chưa tốt.'),
+('DG0030', 'ND0011', 'EP0029', 2, N'Cần chỉnh lại mic trước khi đăng.');
 
-INSERT INTO Subscriptions (user_id, channel_id, subscribed_at, notify_enabled)
-VALUES
-(2, 1, DATE_FORMAT(NOW(), '%Y-%m-01 09:00:00'), TRUE),
-(4, 1, NOW(), TRUE),
-(6, 1, NOW(), TRUE),
-(5, 1, DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01 10:00:00'), INTERVAL 1 MONTH), TRUE),
-(4, 2, DATE_FORMAT(NOW(), '%Y-%m-01 10:30:00'), TRUE),
-(6, 2, DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01 14:00:00'), INTERVAL 2 MONTH), FALSE),
-(1, 3, DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01 11:00:00'), INTERVAL 1 MONTH), TRUE),
-(5, 3, NOW(), TRUE);
+-- 8. UngHo (15 dòng: UH0001 -> UH0015)
+INSERT INTO UngHo (ma_ung_ho, ma_nguoi_ung_ho, ma_creator, so_tien_ung_ho, loi_nhan) VALUES
+('UH0001', 'ND0007', 'NST0001', 50000.00, N'Cảm ơn Tri Thức Vn!'),
+('UH0002', 'ND0008', 'NST0001', 100000.00, N'Ủng hộ kênh ra thêm nhiều tập hay.'),
+('UH0003', 'ND0010', 'NST0001', 30000.00, N'Mời anh ly cà phê ạ.'),
+('UH0004', 'ND0009', 'NST0002', 150000.00, N'Cảm ơn tập EP99 rất chất lượng!'),
+('UH0005', 'ND0011', 'NST0002', 50000.00, N'Rất thích series SQL và AI.'),
+('UH0006', 'ND0015', 'NST0002', 80000.00, N'Ủng hộ Tech & AI Vietnam.'),
+('UH0007', 'ND0017', 'NST0002', 100000.00, N'Chúc kênh ngày càng phát triển.'),
+('UH0008', 'ND0012', 'NST0005', 50000.00, N'Cảm ơn chị đã chia sẻ về tâm lý.'),
+('UH0009', 'ND0016', 'NST0005', 70000.00, N'Nghe podcast mỗi tối rất thư giãn.'),
+('UH0010', 'ND0018', 'NST0004', 120000.00, N'Kiến thức tài chính quá thiết thực.'),
+('UH0011', 'ND0019', 'NST0004', 40000.00, N'Cảm ơn anh Tuấn.'),
+('UH0012', 'ND0015', 'NST0006', 60000.00, N'Ủng hộ kênh lịch sử.'),
+('UH0013', 'ND0013', 'NST0001', 50000.00, N'Nội dung rất bổ ích.'),
+('UH0014', 'ND0014', 'NST0003', 25000.00, N'Chúc kênh sớm cải thiện âm thanh.'),
+('UH0015', 'ND0007', 'NST0004', 90000.00, N'Tập 50-30-20 rất hay!');
 
-INSERT INTO ListeningHistory (user_id, episode_id, last_position_seconds, is_completed, listened_at)
-VALUES
-(2, 1, 1200, TRUE,  DATE_SUB(NOW(), INTERVAL 12 DAY)),
-(4, 1, 1200, TRUE,  DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(5, 1, 780,  FALSE, DATE_SUB(NOW(), INTERVAL 4 DAY)),
-(6, 1, 1200, TRUE,  DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(4, 1, 320,  FALSE, DATE_SUB(NOW(), INTERVAL 2 HOUR)),
-(4, 2, 1500, TRUE,  DATE_SUB(NOW(), INTERVAL 9 DAY)),
-(5, 2, 600,  FALSE, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(6, 2, 1500, TRUE,  DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(4, 3, 420,  FALSE, DATE_SUB(NOW(), INTERVAL 6 HOUR)),
-(2, 5, 1800, TRUE,  DATE_SUB(NOW(), INTERVAL 7 DAY)),
-(4, 5, 950,  FALSE, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(5, 5, 1800, TRUE,  DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(6, 5, 1200, FALSE, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
-(4, 7, 500,  FALSE, DATE_SUB(NOW(), INTERVAL 12 HOUR)),
-(1, 6, 950,  TRUE,  DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(4, 6, 400,  FALSE, DATE_SUB(NOW(), INTERVAL 8 HOUR)),
-(5, 8, 300,  FALSE, DATE_SUB(NOW(), INTERVAL 1 DAY));
+-- 9. QuangCao (10 dòng: QC0001 -> QC0010)
+INSERT INTO QuangCao (ma_quang_cao, nha_quang_cao, tieu_de_qc, audio_qc, link_dich, thoi_luong_giay, trang_thai) VALUES
+('QC0001', N'FPT Software', N'Tuyển dụng Fresher IT 2026', 'https://www.youtube.com/watch?v=r8fSTn3a4dQ', 'https://career.fpt-software.com', 30, 'hoat_dong'),
+('QC0002', N'Highlands Coffee', N'Phin Sữa Đá - Bật năng lượng', 'https://www.youtube.com/watch?v=VQ_21_9sV4E', 'https://www.highlandscoffee.com.vn', 20, 'hoat_dong'),
+('QC0003', N'Tiki Trading', N'Hội sách trực tuyến giảm 40%', 'https://www.youtube.com/watch?v=H14bBuluwB8', 'https://tiki.vn', 25, 'hoat_dong'),
+('QC0004', N'Coursera', N'Học Data Science nhận chứng chỉ quốc tế', 'https://www.youtube.com/watch?v=PHe0bXAIuk0', 'https://www.coursera.org', 30, 'hoat_dong'),
+('QC0005', N'ELSA Speak', N'Luyện phát âm tiếng Anh cùng AI', 'https://www.youtube.com/watch?v=8S0FDjFBj8o', 'https://elsaspeak.com', 25, 'hoat_dong'),
+('QC0006', N'MoMo', N'Thanh toán không tiền mặt tiện lợi', 'https://www.youtube.com/watch?v=aircAruvnKk', 'https://momo.vn', 20, 'hoat_dong'),
+('QC0007', N'Viettel Telecom', N'Gói cước 5G tốc độ cao cho sinh viên', 'https://www.youtube.com/watch?v=HXV3zeQKqGY', 'https://vietteltelecom.vn', 30, 'hoat_dong'),
+('QC0008', N'Shopee', N'Siêu hội sale giữa tháng miễn phí vận chuyển', 'https://www.youtube.com/watch?v=5qap5aO4i9A', 'https://shopee.vn', 15, 'hoat_dong'),
+('QC0009', N'Grab', N'Đặt xe và giao đồ ăn siêu tốc', 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'https://www.grab.com/vn', 20, 'hoat_dong'),
+('QC0010', N'Fahasa', N'Sách kỹ năng giảm giá đến 35%', 'https://www.youtube.com/watch?v=YE7VzlLtp-4', 'https://www.fahasa.com', 25, 'hoat_dong');
 
-INSERT INTO Ratings (user_id, episode_id, score, comment)
-VALUES
-(2, 1, 5, 'Giải thích rất trực quan, dễ hiểu cho người mới.'),
-(4, 1, 5, 'Nội dung Database cơ bản nhưng cực kỳ chắc.'),
-(6, 1, 4, 'Âm thanh rõ ràng, ví dụ thực tế.'),
-(4, 2, 5, 'Phần 3NF rất hữu ích khi làm đồ án.'),
-(5, 2, 4, 'Rất đáng nghe.'),
-(2, 5, 5, 'Tập EP99 phân tích xu hướng AI cực chất lượng!'),
-(4, 5, 5, 'Rất nhiều góc nhìn mới về AI Agents.'),
-(5, 5, 4, 'Hay và cô đọng.'),
-(1, 6, 2, 'Âm lượng nhạc nền hơi lớn so với giọng đọc.'),
-(4, 6, 2, 'Nhịp độ hơi chậm so với kỳ vọng.'),
-(5, 8, 3, 'Nội dung ổn nhưng thu âm chưa đều.');
+-- 10. HopDongQC (12 dòng: HD0001 -> HD0012)
+INSERT INTO HopDongQC (ma_hop_dong, ma_quang_cao, ma_creator, so_hop_dong, gia_tri_hd, don_gia_cpm, ngay_bat_dau, ngay_ket_thuc, trang_thai) VALUES
+('HD0001', 'QC0001', 'NST0002', 'HD-2026-0001', 18000000.00, 50000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0002', 'QC0002', 'NST0002', 'HD-2026-0002', 10000000.00, 35000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0003', 'QC0004', 'NST0002', 'HD-2026-0003', 14000000.00, 45000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0004', 'QC0007', 'NST0002', 'HD-2026-0004', 9000000.00, 30000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0005', 'QC0003', 'NST0001', 'HD-2026-0005', 15000000.00, 45000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0006', 'QC0005', 'NST0001', 'HD-2026-0006', 12000000.00, 40000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0007', 'QC0010', 'NST0001', 'HD-2026-0007', 8500000.00, 32000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0008', 'QC0006', 'NST0004', 'HD-2026-0008', 16000000.00, 48000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0009', 'QC0008', 'NST0004', 'HD-2026-0009', 11000000.00, 38000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0010', 'QC0005', 'NST0005', 'HD-2026-0010', 9500000.00, 35000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0011', 'QC0009', 'NST0005', 'HD-2026-0011', 7000000.00, 28000.00, '2026-01-01', '2026-12-31', 'hieu_luc'),
+('HD0012', 'QC0010', 'NST0006', 'HD-2026-0012', 6500000.00, 25000.00, '2026-01-01', '2026-12-31', 'hieu_luc');
 
--- ===================================================================
--- 3. MODULE 03: ADVERTISEMENT & ANALYTICS
--- ===================================================================
+-- 11. ViTriQC (18 dòng: VT0001 -> VT0018)
+INSERT INTO ViTriQC (ma_vi_tri, ma_hop_dong, ma_tap, vi_tri, giay_bat_dau, trang_thai) VALUES
+('VT0001', 'HD0001', 'EP0099', 'dau_tap', 0, 'hoat_dong'),
+('VT0002', 'HD0002', 'EP0099', 'giua_tap', 900, 'hoat_dong'),
+('VT0003', 'HD0003', 'EP0099', 'cuoi_tap', 1700, 'hoat_dong'),
+('VT0004', 'HD0001', 'EP0011', 'dau_tap', 0, 'hoat_dong'),
+('VT0005', 'HD0002', 'EP0011', 'giua_tap', 450, 'hoat_dong'),
+('VT0006', 'HD0003', 'EP0011', 'cuoi_tap', 820, 'hoat_dong'),
+('VT0007', 'HD0004', 'EP0012', 'giua_tap', 900, 'hoat_dong'),
+('VT0008', 'HD0001', 'EP0014', 'dau_tap', 0, 'hoat_dong'),
+('VT0009', 'HD0003', 'EP0015', 'giua_tap', 800, 'hoat_dong'),
+('VT0010', 'HD0005', 'EP0001', 'dau_tap', 0, 'hoat_dong'),
+('VT0011', 'HD0006', 'EP0001', 'giua_tap', 600, 'hoat_dong'),
+('VT0012', 'HD0007', 'EP0002', 'giua_tap', 750, 'hoat_dong'),
+('VT0013', 'HD0005', 'EP0008', 'dau_tap', 0, 'hoat_dong'),
+('VT0014', 'HD0008', 'EP0019', 'giua_tap', 600, 'hoat_dong'),
+('VT0015', 'HD0009', 'EP0020', 'dau_tap', 0, 'hoat_dong'),
+('VT0016', 'HD0010', 'EP0024', 'giua_tap', 700, 'hoat_dong'),
+('VT0017', 'HD0011', 'EP0025', 'cuoi_tap', 1050, 'hoat_dong'),
+('VT0018', 'HD0012', 'EP0027', 'giua_tap', 850, 'hoat_dong');
 
-INSERT INTO Advertisements (advertiser_name, title, description, target_url, duration_seconds, status)
-VALUES
-('FPT Cloud', 'FPT Cloud - Hạ tầng Cloud thuần Việt', 'Tặng voucher 5 triệu cho lập trình viên đăng ký mới.', 'https://fptcloud.com', 30, 'active'),
-('TopCV', 'TopCV - Việc làm IT chất lượng cao', 'Kết nối hơn 50.000 cơ hội việc làm công nghệ.', 'https://topcv.vn', 25, 'active'),
-('Shopee Tech', 'Shopee Tech - Siêu hội phụ kiện', 'Giảm đến 40% bàn phím cơ và micro thu âm.', 'https://shopee.vn', 20, 'active'),
-('Vietcombank', 'VCB Digibank - Thanh toán không chạm', 'Hoàn tiền 10% khi thanh toán hóa đơn dịch vụ số.', 'https://vietcombank.com.vn', 30, 'active'),
-('ELSA Speak', 'ELSA Speak - Luyện phát âm AI', 'Giảm 50% gói học tiếng Anh giao tiếp trọn đời.', 'https://elsaspeak.com', 20, 'active');
-
-INSERT INTO AdContracts (ad_id, creator_id, contract_code, contract_value, cpm_rate, start_date, end_date, status)
-VALUES
-(1, 1, 'CTR-2026-001', 15000000.00, 120000.00, DATE_SUB(CURDATE(), INTERVAL 4 MONTH), DATE_ADD(CURDATE(), INTERVAL 2 MONTH), 'active'),
-(2, 1, 'CTR-2026-002', 12000000.00, 100000.00, DATE_SUB(CURDATE(), INTERVAL 4 MONTH), DATE_ADD(CURDATE(), INTERVAL 2 MONTH), 'active'),
-(3, 1, 'CTR-2026-003',  8000000.00,  85000.00, DATE_SUB(CURDATE(), INTERVAL 3 MONTH), DATE_ADD(CURDATE(), INTERVAL 3 MONTH), 'active'),
-(4, 1, 'CTR-2026-004', 18000000.00, 150000.00, DATE_SUB(CURDATE(), INTERVAL 2 MONTH), DATE_ADD(CURDATE(), INTERVAL 4 MONTH), 'active'),
-(5, 2, 'CTR-2026-005',  9000000.00,  95000.00, DATE_SUB(CURDATE(), INTERVAL 3 MONTH), DATE_ADD(CURDATE(), INTERVAL 3 MONTH), 'active');
-
-INSERT INTO AdSlots (contract_id, episode_id, slot_position, start_offset_seconds, status)
-VALUES
-(1, 5, 'pre-roll',   0,    'active'),
-(2, 5, 'mid-roll',   900,  'active'),
-(4, 5, 'post-roll',  1740, 'active'),
-(1, 3, 'pre-roll',   0,    'active'),
-(2, 3, 'mid-roll',   300,  'active'),
-(3, 3, 'post-roll',  560,  'active'),
-(1, 4, 'pre-roll',   0,    'active'),
-(2, 4, 'mid-roll',   800,  'active'),
-(3, 4, 'mid-roll',   1600, 'active'),
-(4, 4, 'post-roll',  2350, 'active'),
-(5, 6, 'pre-roll',   0,    'active');
-
-INSERT INTO AdRevenue (contract_id, slot_id, revenue_date, impressions, amount, notes)
-VALUES
-(1, 1, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 3 MONTH), INTERVAL 14 DAY), 29100, 3500000.00, 'Doanh thu FPT Cloud tháng T-3'),
-(2, 2, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 3 MONTH), INTERVAL 18 DAY), 25000, 2500000.00, 'Doanh thu TopCV tháng T-3'),
-(1, 1, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 2 MONTH), INTERVAL 14 DAY), 35000, 4200000.00, 'Doanh thu FPT Cloud tháng T-2'),
-(3, 6, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 2 MONTH), INTERVAL 20 DAY), 32900, 2800000.00, 'Doanh thu Shopee Tech tháng T-2'),
-(2, 2, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH), INTERVAL 12 DAY), 38000, 3800000.00, 'Doanh thu TopCV tháng T-1'),
-(4, 3, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH), INTERVAL 19 DAY), 34600, 5200000.00, 'Doanh thu Vietcombank tháng T-1'),
-(1, 1, DATE_FORMAT(CURDATE(), '%Y-%m-01'), 37500, 4500000.00, 'Doanh thu FPT Cloud đầu tháng hiện tại'),
-(4, 3, DATE_FORMAT(CURDATE(), '%Y-%m-02'), 40000, 6000000.00, 'Doanh thu Vietcombank đầu tháng hiện tại'),
-(5, 11, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 2 MONTH), INTERVAL 16 DAY), 21000, 2000000.00, 'Doanh thu ELSA Speak tháng T-2'),
-(5, 11, DATE_ADD(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH), INTERVAL 16 DAY), 26300, 2500000.00, 'Doanh thu ELSA Speak tháng T-1'),
-(5, 11, DATE_FORMAT(CURDATE(), '%Y-%m-01'), 31500, 3000000.00, 'Doanh thu ELSA Speak tháng hiện tại');
-
-INSERT INTO Donations (donor_user_id, creator_id, episode_id, amount, message, donated_at)
-VALUES
-(4, 1, 1,    100000.00, 'Cảm ơn anh chia sẻ kiến thức SQL rất dễ hiểu!', DATE_SUB(NOW(), INTERVAL 6 DAY)),
-(5, 1, 5,    200000.00, 'Tập EP99 phân tích AI rất chất lượng!', DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(6, 2, 6,     50000.00, 'Nghe rất thư giãn mỗi buổi chiều.', DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(4, 2, NULL, 150000.00, 'Ủng hộ kênh Trà Chiều Radio ra thêm tập mới!', DATE_SUB(NOW(), INTERVAL 1 DAY));
+-- 12. DoanhThuQC (24 dòng: DT0001 -> DT0024)
+INSERT INTO DoanhThuQC (ma_doanh_thu, ma_hop_dong, ma_vi_tri, ngay_ghi_nhan, luot_hien_thi, so_tien, ghi_chu) VALUES
+('DT0001', 'HD0005', 'VT0010', '2026-01-20', 12000, 2800000.00, N'Tháng 1 - Tri Thức Studio'),
+('DT0002', 'HD0006', 'VT0011', '2026-02-18', 15000, 3400000.00, N'Tháng 2 - Tri Thức Studio'),
+('DT0003', 'HD0005', 'VT0013', '2026-03-22', 18000, 4200000.00, N'Tháng 3 - Tri Thức Studio'),
+('DT0004', 'HD0007', 'VT0012', '2026-04-15', 14000, 3100000.00, N'Tháng 4 - Tri Thức Studio'),
+('DT0005', 'HD0006', 'VT0011', '2026-05-19', 19000, 4600000.00, N'Tháng 5 - Tri Thức Studio'),
+('DT0006', 'HD0005', 'VT0010', '2026-06-25', 22000, 5100000.00, N'Tháng 6 - Tri Thức Studio'),
+('DT0007', 'HD0001', 'VT0001', '2026-01-25', 16000, 3900000.00, N'Tháng 1 - Tech & AI'),
+('DT0008', 'HD0002', 'VT0002', '2026-02-20', 14000, 3200000.00, N'Tháng 2 - Tech & AI'),
+('DT0009', 'HD0003', 'VT0003', '2026-03-18', 21000, 5300000.00, N'Tháng 3 - Tech & AI'),
+('DT0010', 'HD0001', 'VT0008', '2026-04-21', 19500, 4800000.00, N'Tháng 4 - Tech & AI'),
+('DT0011', 'HD0004', 'VT0007', '2026-05-15', 17000, 3700000.00, N'Tháng 5 - Tech & AI'),
+('DT0012', 'HD0003', 'VT0009', '2026-06-28', 24000, 6100000.00, N'Tháng 6 - Tech & AI'),
+('DT0013', 'HD0008', 'VT0014', '2026-01-28', 11000, 2900000.00, N'Tháng 1 - Tài Chính'),
+('DT0014', 'HD0009', 'VT0015', '2026-02-24', 13000, 3300000.00, N'Tháng 2 - Tài Chính'),
+('DT0015', 'HD0008', 'VT0014', '2026-03-27', 15500, 4100000.00, N'Tháng 3 - Tài Chính'),
+('DT0016', 'HD0009', 'VT0015', '2026-04-26', 14500, 3600000.00, N'Tháng 4 - Tài Chính'),
+('DT0017', 'HD0010', 'VT0016', '2026-02-14', 9500, 2200000.00, N'Tháng 2 - Tâm Lý'),
+('DT0018', 'HD0011', 'VT0017', '2026-03-16', 10500, 2500000.00, N'Tháng 3 - Tâm Lý'),
+('DT0019', 'HD0010', 'VT0016', '2026-04-19', 12000, 2900000.00, N'Tháng 4 - Tâm Lý'),
+('DT0020', 'HD0011', 'VT0017', '2026-05-22', 13500, 3100000.00, N'Tháng 5 - Tâm Lý'),
+('DT0021', 'HD0012', 'VT0018', '2026-03-10', 8000, 1800000.00, N'Tháng 3 - Lịch Sử'),
+('DT0022', 'HD0012', 'VT0018', '2026-04-12', 9200, 2100000.00, N'Tháng 4 - Lịch Sử'),
+('DT0023', 'HD0012', 'VT0018', '2026-05-14', 11000, 2600000.00, N'Tháng 5 - Lịch Sử'),
+('DT0024', 'HD0012', 'VT0018', '2026-06-18', 12500, 2950000.00, N'Tháng 6 - Lịch Sử');

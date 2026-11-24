@@ -15,9 +15,9 @@ def _serializer() -> URLSafeTimedSerializer:
     return URLSafeTimedSerializer(Settings.SECRET_KEY, salt=_TOKEN_SALT)
 
 
-def create_access_token(user_id: int, role: str) -> str:
+def create_access_token(user_id: str | int, role: str) -> str:
     """Create a signed, timed Bearer token for an authenticated user."""
-    return _serializer().dumps({"user_id": int(user_id), "role": role})
+    return _serializer().dumps({"user_id": str(user_id), "role": role})
 
 
 def decode_access_token(token: str) -> dict:
@@ -41,18 +41,31 @@ def extract_bearer_token() -> str | None:
     return parts[1].strip()
 
 
-def load_user_with_creator(user_id: int) -> dict | None:
+def load_user_with_creator(user_id: str | int) -> dict | None:
     """Fetch user record along with optional Creator profile."""
     return db.fetch_one(
         """
-        SELECT u.user_id, u.username, u.email, u.full_name, u.role, u.avatar_url, u.created_at,
-               c.creator_id, c.display_name AS creator_display_name, c.bio AS creator_bio,
-               c.verified AS creator_verified
-        FROM Users u
-        LEFT JOIN Creators c ON u.user_id = c.user_id
-        WHERE u.user_id = %s
+        SELECT u.ma_nguoi_dung AS user_id,
+               u.ten_dang_nhap AS username,
+               u.email,
+               u.ho_ten AS full_name,
+               CASE u.vai_tro
+                   WHEN 'nha_sang_tao' THEN 'creator'
+                   WHEN 'quan_tri' THEN 'admin'
+                   ELSE 'user'
+               END AS role,
+               u.vai_tro AS vai_tro,
+               u.anh_dai_dien AS avatar_url,
+               u.ngay_tao AS created_at,
+               c.ma_creator AS creator_id,
+               c.ten_hien_thi AS creator_display_name,
+               c.tieu_su AS creator_bio,
+               c.da_xac_minh AS creator_verified
+        FROM NguoiDung u
+        LEFT JOIN NhaSangTao c ON u.ma_nguoi_dung = c.ma_nguoi_dung
+        WHERE u.ma_nguoi_dung = %s
         """,
-        (user_id,),
+        (str(user_id),),
     )
 
 
@@ -65,7 +78,7 @@ def get_optional_user() -> dict | None:
         g.current_user = None
         return None
     payload = decode_access_token(token)
-    user = load_user_with_creator(int(payload["user_id"]))
+    user = load_user_with_creator(str(payload["user_id"]))
     if not user:
         raise AppError("Tài khoản không còn tồn tại.", status_code=401, code="USER_NOT_FOUND")
     g.current_user = user
