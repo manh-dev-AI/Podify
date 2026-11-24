@@ -9,14 +9,11 @@ USE podify_db;
 
 SELECT
     c.channel_id,
-    c.title AS channel_title,
-    cr.display_name AS creator_name,
-    COUNT(r.rating_id) AS total_ratings,
+    c.title,
     ROUND(AVG(r.score), 2) AS avg_rating
-FROM PodcastChannels c
-INNER JOIN Creators cr ON c.creator_id = cr.creator_id
-INNER JOIN Episodes e ON c.channel_id = e.channel_id
-INNER JOIN Ratings r ON e.episode_id = r.episode_id
-GROUP BY c.channel_id, c.title, cr.display_name
-HAVING AVG(r.score) < 3.0
+FROM Ratings r
+INNER JOIN Episodes e ON r.episode_id = e.episode_id
+INNER JOIN PodcastChannels c ON e.channel_id = c.channel_id
+GROUP BY c.channel_id, c.title
+HAVING AVG(r.score) < 3
 ORDER BY avg_rating ASC;

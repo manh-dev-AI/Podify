@@ -7,16 +7,11 @@
 
 USE podify_db;
 
-SELECT
-    e.episode_id,
-    c.title AS channel_title,
-    e.title AS episode_title,
-    e.duration_seconds,
-    SEC_TO_TIME(e.duration_seconds) AS duration_formatted,
-    e.status,
-    COUNT(lh.history_id) AS listen_count
+SELECT e.episode_id, e.title,
+       COUNT(lh.history_id) AS listen_count
 FROM Episodes e
-INNER JOIN PodcastChannels c ON e.channel_id = c.channel_id
-LEFT JOIN ListeningHistory lh ON e.episode_id = lh.episode_id
-GROUP BY e.episode_id, c.title, e.title, e.duration_seconds, e.status
-ORDER BY listen_count DESC, e.episode_id ASC;
+LEFT OUTER JOIN ListeningHistory lh
+    ON e.episode_id = lh.episode_id
+WHERE e.channel_id = 1
+GROUP BY e.episode_id, e.title
+ORDER BY listen_count DESC;
