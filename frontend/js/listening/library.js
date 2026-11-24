@@ -343,7 +343,7 @@ const PodifyLibrary = (() => {
               </div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
-              <button class="btn-secondary btn-xs" data-act="go-explore-ch" data-channel-id="${c.channel_id}">Xem các tập</button>
+              <button class="btn-secondary btn-xs" data-act="open-channel" data-channel-id="${c.channel_id}">Xem kênh</button>
               <button class="btn-danger btn-xs" data-act="toggle-sub-id" data-channel-id="${c.channel_id}" data-sub="1">Bỏ theo dõi</button>
             </div>
           </div>`

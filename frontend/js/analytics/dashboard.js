@@ -112,7 +112,7 @@ const PodifyAnalytics = (() => {
                 .map(
                   (c) => `
                   <tr>
-                    <td><strong>${esc(c.channel_title)}</strong></td>
+                    <td><strong><a href="#channel" data-act="open-channel" data-channel-id="${c.channel_id}" style="color:inherit;">${esc(c.channel_title)}</a></strong></td>
                     <td>${esc(c.creator_name)}</td>
                     <td><span class="lib-badge">${esc(c.category)}</span></td>
                     <td>${c.total_listens}</td>
@@ -134,9 +134,7 @@ const PodifyAnalytics = (() => {
 
     return `
       <div class="trigger-alert">
-        <strong>Kiểm chứng quy tắc nghiệp vụ (Backend Validation):</strong>
-        Mỗi Episode có thời lượng <strong>&lt; 20 phút (&lt; 1200s)</strong> chỉ được gắn tối đa <strong>3 hợp đồng quảng cáo</strong>.
-        Hiện <code>EP0011</code> (<em>Tập ngắn: Nhập môn SQL trong 15 phút — 900s</em>) đã có đủ 3/3 hợp đồng. Hãy thử gắn thêm hợp đồng <code>HD-2026-0004</code> (tài khoản <code>minh_ai</code>) để xem hệ thống chặn và báo lỗi ngay!
+        <strong>Quy định phân phối quảng cáo:</strong> Mỗi tập Podcast có thời lượng dưới 20 phút chỉ được gắn tối đa <strong>3 hợp đồng quảng cáo</strong>.
       </div>
 
       ${
@@ -168,7 +166,7 @@ const PodifyAnalytics = (() => {
                 ${state.episodes
                   .map(
                     (e) =>
-                      `<option value="${e.episode_id}">#${e.episode_id} ${esc(e.title)} (${e.duration_seconds}s)</option>`
+                      `<option value="${e.episode_id}">${e.episode_id} — ${esc(e.title)} (${e.duration_seconds}s)</option>`
                   )
                   .join('')}
               </select>
@@ -240,7 +238,7 @@ const PodifyAnalytics = (() => {
                 .map(
                   (s) => `
                   <tr>
-                    <td><strong>#${s.episode_id} ${esc(s.episode_title)}</strong></td>
+                    <td><strong>${s.episode_id} — ${esc(s.episode_title)}</strong></td>
                     <td>${s.episode_duration_seconds}s (${Math.round(s.episode_duration_seconds / 60)}p)</td>
                     <td><span class="lib-badge">${esc(s.slot_position)}</span></td>
                     <td>${PodifyUI.fmtTime(s.start_offset_seconds)}</td>
@@ -248,7 +246,7 @@ const PodifyAnalytics = (() => {
                     <td>${esc(s.advertiser_name)}</td>
                     <td>
                       ${
-                        isCreator
+                        user && (user.role === 'admin' || String(s.creator_id) === String(user.creator_id))
                           ? `<button class="btn-secondary" style="padding:4px 10px;font-size:11.5px;" data-del-slot="${s.slot_id}">Gỡ</button>`
                           : '—'
                       }
@@ -437,7 +435,7 @@ const PodifyAnalytics = (() => {
 
         <div class="filter-group">
           <button class="pill-tab ${state.tab === 'overview' ? 'active' : ''}" data-an-tab="overview">Tổng quan &amp; Q8</button>
-          <button class="pill-tab ${state.tab === 'ads' ? 'active' : ''}" data-an-tab="ads">Quảng cáo, Hợp đồng &amp; Trigger</button>
+          <button class="pill-tab ${state.tab === 'ads' ? 'active' : ''}" data-an-tab="ads">Quảng cáo &amp; Hợp đồng</button>
           <button class="pill-tab ${state.tab === 'donations' ? 'active' : ''}" data-an-tab="donations">Donations</button>
           <button class="pill-tab ${state.tab === 'queries' ? 'active' : ''}" data-an-tab="queries">SQL Queries (Q1–Q8)</button>
         </div>

@@ -24,6 +24,6 @@ echo.
 if errorlevel 1 (
     echo [THAT BAI] Kiem tra lai cau hinh MySQL trong file .env.
 ) else (
-    echo [THANH CONG] Da tao lai 12 bang, 3 Triggers va du lieu mau!
+    echo [THANH CONG] Da tao lai 12 bang va du lieu mau!
 )
 pause

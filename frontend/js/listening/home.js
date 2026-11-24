@@ -35,6 +35,9 @@
     episodes: [],
     history: [],
     ratingsList: [],
+    channelDetail: null,
+    selectedChannelId: null,
+    channelReturnView: 'home',
     apiError: null,
     nowEpId: null,
     activeHistoryId: null,
@@ -45,6 +48,29 @@
     selectedScore: 5,
     activities: [],
   };
+
+  const LOCAL_AUDIO_POOL = [
+    '/assets/audio/podcast_cuoc_song.mp3',
+    '/assets/audio/podcast_hoai_bao.mp3',
+    '/assets/audio/podcast_tinh_yeu.mp3',
+    '/assets/audio/nhac_dua_vai_anh.mp3',
+    '/assets/audio/nhac_uoc_mo_cua_me.mp3',
+    '/assets/audio/sample_1.mp3',
+    '/assets/audio/sample_2.mp3',
+    '/assets/audio/sample_3.mp3',
+    '/assets/audio/sample_4.mp3',
+    '/assets/audio/sample_5.mp3',
+    '/assets/audio/sample_6.mp3',
+    '/assets/audio/sample_7.mp3',
+  ];
+
+  function localFallbackAudio(epId) {
+    const idStr = String(epId || '');
+    if (/99$/.test(idStr)) return '/assets/audio/sample_ep99.mp3';
+    const digits = idStr.replace(/\D/g, '');
+    const idx = Math.max(0, (parseInt(digits || '1', 10) || 1) - 1);
+    return LOCAL_AUDIO_POOL[idx % LOCAL_AUDIO_POOL.length];
+  }
 
   const audio = $('#podifyAudio');
   let lastProgressSyncAt = 0;
@@ -181,10 +207,9 @@
 
   function renderPodcastCard(c) {
     const th = channelTheme(c.channel_id);
-    const coverImg = c.cover_image_url || th.cover;
     return `
-      <article class="pod-card" data-act="go-explore-ch" data-channel-id="${c.channel_id}">
-        <div class="pod-cover" style="background:${th.bg} url('${esc(coverImg)}') center/cover no-repeat;color:${th.color};">
+      <article class="pod-card" data-act="open-channel" data-channel-id="${c.channel_id}">
+        <div class="pod-cover" style="background:linear-gradient(180deg, rgba(16, 26, 22, 0.52) 0%, rgba(16, 26, 22, 0.88) 100%), ${th.bg} url('${esc(th.cover)}') center/cover no-repeat;color:${th.color};">
           <div class="pod-cover-title">${esc(c.title)}</div>
           <div class="pod-cover-sub">${esc(c.category)} · ★ ${c.avg_rating || 0}</div>
         </div>
@@ -218,7 +243,7 @@
         ? subs
             .map(
               (c) => `
-            <div class="lib-mini-card" data-act="go-explore-ch" data-channel-id="${c.channel_id}">
+            <div class="lib-mini-card" data-act="open-channel" data-channel-id="${c.channel_id}">
               <div class="lib-mini-top">
                 <span class="lib-badge">${esc(c.category)}</span>
                 <button class="see-all" data-act="toggle-sub-id" data-channel-id="${c.channel_id}" data-sub="1">Đang theo dõi ✓</button>
@@ -395,14 +420,17 @@
                     <div class="data-row-left">
                       <div class="mp-thumb" style="background:${th.bg};color:${th.color};">${esc(c.title.slice(0, 2).toUpperCase())}</div>
                       <div>
-                        <strong>${esc(c.title)}</strong>
+                        <strong><a href="#channel" data-act="open-channel" data-channel-id="${c.channel_id}" style="color:inherit;">${esc(c.title)}</a></strong>
                         <div style="font-size:12px;color:var(--text-secondary)">${esc(c.creator_name)} · ${esc(c.category)} · ${c.subscriber_count} subscribers</div>
                       </div>
                     </div>
-                    <button class="${c.subscribed ? 'btn-secondary' : 'btn-primary'}"
-                      data-act="toggle-sub-id" data-channel-id="${c.channel_id}" data-sub="${c.subscribed ? 1 : 0}">
-                      ${c.subscribed ? 'Đang theo dõi ✓' : '+ Theo dõi'}
-                    </button>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <button class="btn-secondary" data-act="open-channel" data-channel-id="${c.channel_id}">Xem kênh</button>
+                      <button class="${c.subscribed ? 'btn-secondary' : 'btn-primary'}"
+                        data-act="toggle-sub-id" data-channel-id="${c.channel_id}" data-sub="${c.subscribed ? 1 : 0}">
+                        ${c.subscribed ? 'Đang theo dõi ✓' : '+ Theo dõi'}
+                      </button>
+                    </div>
                   </div>`;
               })
               .join('')}
@@ -496,14 +524,128 @@
     `;
   }
 
+  function renderChannelDetail() {
+    const ch = state.channelDetail;
+    if (!ch) {
+      return `
+        <div class="content-grid">
+          <div class="feed-col">
+            <button class="channel-back-btn" data-act="channel-back">← Quay lại</button>
+            <div class="card-surface" style="padding:20px;color:var(--text-muted);">
+              ${state.apiError ? `Lỗi tải kênh: ${esc(state.apiError)}` : 'Không tìm thấy thông tin kênh Podcast.'}
+            </div>
+          </div>
+          ${renderRightRail()}
+        </div>
+      `;
+    }
+
+    const th = channelTheme(ch.channel_id);
+    const eps = ch.episodes || [];
+    const totalListens = eps.reduce((acc, e) => acc + Number(e.listen_count || 0), 0);
+    const firstEp = eps[0] || null;
+
+    return `
+      <div class="content-grid">
+        <div class="feed-col">
+          <div>
+            <button class="channel-back-btn" data-act="channel-back">← Quay lại</button>
+            <section class="channel-hero">
+              <div class="channel-hero-cover" style="background:linear-gradient(180deg, rgba(16, 26, 22, 0.45) 0%, rgba(16, 26, 22, 0.88) 100%), ${th.bg} url('${esc(th.cover)}') center/cover no-repeat;">
+                <strong>${esc(ch.title)}</strong>
+              </div>
+              <div class="channel-hero-body">
+                <div class="channel-hero-meta">
+                  <span class="lib-badge">${esc(ch.category)}</span>
+                  ${ch.creator_verified ? '<span class="badge-verified">✓ Creator đã xác minh</span>' : ''}
+                  <span>Mã kênh: <code>${esc(ch.channel_id)}</code></span>
+                </div>
+                <h1>${esc(ch.title)}</h1>
+                <div class="channel-hero-meta">
+                  <span>Creator: <strong>${esc(ch.creator_name)}</strong></span>
+                  <span>·</span>
+                  <span>${eps.length} tập</span>
+                  <span>·</span>
+                  <span>${ch.subscriber_count} người theo dõi</span>
+                  <span>·</span>
+                  <span>${totalListens} lượt nghe</span>
+                  <span>·</span>
+                  <span>★ ${ch.avg_rating || 0}</span>
+                </div>
+                <p class="channel-hero-desc">${esc(ch.description || ch.creator_bio || 'Chưa có mô tả chi tiết cho kênh này.')}</p>
+                <div class="channel-hero-actions">
+                  ${
+                    firstEp
+                      ? `<button class="btn-primary" data-act="play-episode-id" data-ep-id="${firstEp.episode_id}">${ICONS.play} Phát tập mới nhất</button>`
+                      : ''
+                  }
+                  <button class="${ch.is_subscribed ? 'btn-secondary' : 'btn-primary'}"
+                    data-act="toggle-sub-id" data-channel-id="${ch.channel_id}" data-sub="${ch.is_subscribed ? 1 : 0}">
+                    ${ch.is_subscribed ? 'Đang theo dõi ✓' : '+ Theo dõi kênh'}
+                  </button>
+                  <button class="btn-secondary" onclick="PodifyUI.openDonateModal('${esc(ch.creator_id)}')">♥ Donate Creator</button>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <section>
+            <div class="section-head">
+              <div class="section-title">
+                <span>Danh sách tập của kênh (${eps.length} tập)</span>
+              </div>
+            </div>
+            <div class="data-list">
+              ${
+                eps.length
+                  ? eps
+                      .map((e) => {
+                        const isPlayingNow = state.playing && String(state.nowEpId) === String(e.episode_id);
+                        return `
+                          <div class="data-row">
+                            <div class="data-row-left" style="flex:1;">
+                              <button class="circle-play" data-act="play-episode-id" data-ep-id="${e.episode_id}" aria-label="Phát tập">
+                                ${isPlayingNow ? ICONS.pause : ICONS.play}
+                              </button>
+                              <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                  <strong>${esc(e.title)}</strong>
+                                  <span class="lib-badge">${PodifyUI.fmtTime(e.duration_seconds)}</span>
+                                </div>
+                                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">
+                                  ${esc(e.episode_id)} · ${e.listen_count || 0} lượt nghe · ★ ${e.avg_rating || 0}
+                                </div>
+                              </div>
+                            </div>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                              <button class="btn-secondary" data-act="open-ep-detail" data-ep-id="${e.episode_id}">Chi tiết</button>
+                              <button class="btn-secondary" data-act="open-rate" data-id="${e.episode_id}">★ Đánh giá</button>
+                              <button class="${isPlayingNow ? 'btn-secondary' : 'btn-primary'}" data-act="play-episode-id" data-ep-id="${e.episode_id}">
+                                ${isPlayingNow ? 'Đang phát' : '▶ Nghe'}
+                              </button>
+                            </div>
+                          </div>`;
+                      })
+                      .join('')
+                  : '<div class="card-surface" style="padding:18px;color:var(--text-muted);">Kênh này chưa có tập Podcast nào.</div>'
+              }
+            </div>
+          </section>
+        </div>
+        ${renderRightRail()}
+      </div>
+    `;
+  }
+
   async function render(reloadFromServer = true) {
     const main = $('#mainContent');
     if (!main) return;
     const seq = ++renderSeq;
     const user = PodifyUI.getUser();
 
+    const activeNavView = state.view === 'channel' ? state.channelReturnView : state.view;
     document.querySelectorAll('.nav-item[data-view]').forEach((el) => {
-      el.classList.toggle('active', el.dataset.view === state.view);
+      el.classList.toggle('active', el.dataset.view === activeNavView);
     });
 
     if (state.view === 'auth') {
@@ -513,6 +655,22 @@
           await render(true);
         }
       });
+    } else if (state.view === 'channel') {
+      if (reloadFromServer && state.selectedChannelId) {
+        state.apiError = null;
+        try {
+          const [chDetail] = await Promise.all([
+            PodifyUI.api(`/api/content/channels/${state.selectedChannelId}`),
+            loadListeningData(),
+          ]);
+          state.channelDetail = chDetail;
+        } catch (err) {
+          state.channelDetail = null;
+          state.apiError = err.message;
+        }
+      }
+      if (seq !== renderSeq) return;
+      main.innerHTML = renderChannelDetail();
     } else if (state.view === 'explore') {
       if (reloadFromServer) await PodifyContent.loadData(state.search);
       if (seq !== renderSeq) return;
@@ -656,8 +814,9 @@
 
   if (audio) {
     audio.addEventListener('error', () => {
-      if (audio.src && !audio.src.includes('/assets/audio/podcast_cuoc_song.mp3')) {
-        audio.src = '/assets/audio/podcast_cuoc_song.mp3';
+      const fallback = localFallbackAudio(state.nowEpId);
+      if (audio.src && !audio.src.includes('/assets/audio/')) {
+        audio.src = fallback;
         audio.load();
         audio.play().then(() => {
           state.playing = !audio.paused;
@@ -763,6 +922,22 @@
       if (state.view !== 'auth') state.returnView = state.view;
       state.view = btn.dataset.view;
       await render(true);
+    } else if (act === 'open-channel') {
+      ev.preventDefault();
+      if (state.view !== 'channel' && state.view !== 'auth') {
+        state.channelReturnView = state.view;
+      }
+      state.selectedChannelId = btn.dataset.channelId || null;
+      state.view = 'channel';
+      await render(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (act === 'channel-back') {
+      ev.preventDefault();
+      state.view = state.channelReturnView || 'home';
+      await render(true);
+    } else if (act === 'open-ep-detail') {
+      ev.preventDefault();
+      if (btn.dataset.epId) PodifyLibrary.openEpisodeDetail(btn.dataset.epId);
     } else if (act === 'go-explore-ch') {
       PodifyContent.setSelectedChannel(btn.dataset.channelId || null);
       state.view = 'explore';
@@ -861,6 +1036,7 @@
 
   PodifyUI.initCommon({
     onAuthChange: async () => {
+      state.activeHistoryId = null;
       if (state.view !== 'auth') {
         await render(true);
       }
@@ -876,5 +1052,10 @@
       }
     },
   });
+  const initialHash = (window.location.hash || '').replace(/^#/, '');
+  if (initialHash.startsWith('channel-')) {
+    state.selectedChannelId = initialHash.slice('channel-'.length);
+    state.view = 'channel';
+  }
   render(true);
 })();

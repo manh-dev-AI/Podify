@@ -76,10 +76,14 @@ const PodifyContent = (() => {
             <div class="form-field">
               <label>Danh mục</label>
               <select name="category">
+                <option value="Giáo dục & Khoa học">Giáo dục &amp; Khoa học</option>
+                <option value="Giáo dục">Giáo dục</option>
                 <option value="Công nghệ">Công nghệ</option>
                 <option value="Đời sống">Đời sống</option>
                 <option value="Kinh doanh">Kinh doanh</option>
-                <option value="Giáo dục">Giáo dục</option>
+                <option value="Tâm lý">Tâm lý</option>
+                <option value="Lịch sử">Lịch sử</option>
+                <option value="Giải trí">Giải trí</option>
               </select>
             </div>
             <div class="form-field">
@@ -145,7 +149,17 @@ const PodifyContent = (() => {
   }
 
   function renderHTML(user) {
-    const categories = ['', 'Công nghệ', 'Đời sống', 'Kinh doanh', 'Giáo dục'];
+    const categories = [
+      '',
+      'Giáo dục & Khoa học',
+      'Giáo dục',
+      'Công nghệ',
+      'Đời sống',
+      'Kinh doanh',
+      'Tâm lý',
+      'Lịch sử',
+      'Giải trí',
+    ];
     const esc = PodifyUI.escapeHtml;
 
     const visibleEpisodes = state.selectedChannelId
@@ -186,7 +200,7 @@ const PodifyContent = (() => {
           <div class="filter-group">
             <button class="pill-tab ${state.durationFilter === 'all' ? 'active' : ''}" data-content-dur="all">Mọi thời lượng</button>
             <button class="pill-tab ${state.durationFilter === 'q1' ? 'active' : ''}" data-content-dur="q1">15–30 phút (Q1)</button>
-            <button class="pill-tab ${state.durationFilter === 'short' ? 'active' : ''}" data-content-dur="short">&lt; 20 phút (Trigger)</button>
+            <button class="pill-tab ${state.durationFilter === 'short' ? 'active' : ''}" data-content-dur="short">&lt; 20 phút (≤ 3 HĐ QC)</button>
           </div>
         </div>
 
@@ -209,7 +223,7 @@ const PodifyContent = (() => {
               <div class="data-row">
                 <div style="min-width:0;flex:1;">
                   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <strong>${esc(c.title)}</strong>
+                    <strong><a href="#channel" data-act="open-channel" data-channel-id="${c.channel_id}" style="color:inherit;">${esc(c.title)}</a></strong>
                     <span class="lib-badge">${esc(c.category)}</span>
                     ${c.creator_verified ? '<span class="badge-verified">✓ Verified</span>' : ''}
                   </div>
@@ -218,8 +232,9 @@ const PodifyContent = (() => {
                   </div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <button class="btn-secondary" data-act="open-channel" data-channel-id="${c.channel_id}">Chi tiết kênh</button>
                   <button class="btn-secondary" data-content-channel="${c.channel_id}">
-                    ${String(state.selectedChannelId) === String(c.channel_id) ? 'Đang lọc' : 'Xem tập'}
+                    ${String(state.selectedChannelId) === String(c.channel_id) ? 'Đang lọc' : 'Lọc tập'}
                   </button>
                   <button class="${c.is_subscribed ? 'btn-secondary' : 'btn-primary'}"
                     data-act="toggle-sub-id" data-channel-id="${c.channel_id}" data-sub="${c.is_subscribed ? 1 : 0}">
@@ -312,6 +327,7 @@ const PodifyContent = (() => {
 
     container.querySelectorAll('[data-content-del-ep]').forEach((btn) => {
       btn.addEventListener('click', async () => {
+        if (!window.confirm('Bạn có chắc muốn xóa tập Podcast này khỏi hệ thống?')) return;
         try {
           await PodifyUI.api(`/api/content/episodes/${btn.dataset.contentDelEp}`, { method: 'DELETE' });
           PodifyUI.showToast('Đã xóa Episode.');
