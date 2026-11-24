@@ -1,53 +1,8 @@
--- ===================================================================
--- ĐỀ 18: TRIGGER NGHIỆP VỤ + 8 TRUY VẤN DỮ LIỆU (podify_db)
--- Dùng tên bảng/cột chuẩn từ full_schema_vi.sql + cú pháp JOIN gọn
--- ===================================================================
-
 USE podify_db;
 
--- ===================================================================
--- PHẦN A: TRIGGER KIỂM TRA RÀNG BUỘC LIÊN BẢNG & BUSINESS RULES
--- 1. giay_bat_dau < thoi_luong_giay
--- 2. Tập dưới 20 phút (< 1200s) không được chèn quá 3 hợp đồng QC khác nhau
--- ===================================================================
-DROP TRIGGER IF EXISTS TRG_ViTriQC_KiemTra_BI;
-
-DELIMITER $$
-CREATE TRIGGER TRG_ViTriQC_KiemTra_BI
-BEFORE INSERT ON ViTriQC
-FOR EACH ROW
-BEGIN
-    DECLARE v_thoi_luong INT;
-    DECLARE v_so_hop_dong INT DEFAULT 0;
-    DECLARE v_da_ton_tai INT DEFAULT 0;
-
-    SELECT thoi_luong_giay INTO v_thoi_luong
-    FROM TapPodcast
-    WHERE ma_tap = NEW.ma_tap;
-
-    IF NEW.giay_bat_dau < 0 OR NEW.giay_bat_dau >= v_thoi_luong THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Loi: Thoi diem chen quang cao phai nho hon thoi luong tap podcast!';
-    END IF;
-
-    IF v_thoi_luong < 1200 THEN
-        SELECT
-            COUNT(DISTINCT ma_hop_dong),
-            COALESCE(MAX(CASE WHEN ma_hop_dong = NEW.ma_hop_dong THEN 1 ELSE 0 END), 0)
-        INTO v_so_hop_dong, v_da_ton_tai
-        FROM ViTriQC
-        WHERE ma_tap = NEW.ma_tap;
-
-        IF v_da_ton_tai = 0 AND v_so_hop_dong >= 3 THEN
-            SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'Loi: Tap podcast duoi 20 phut khong duoc chen qua 3 hop dong quang cao!';
-        END IF;
-    END IF;
-END$$
-DELIMITER ;
 
 -- ===================================================================
--- PHẦN B: HỆ THỐNG 8 TRUY VẤN DỮ LIỆU THEO ĐỀ 18
+-- HỆ THỐNG 8 TRUY VẤN DỮ LIỆU THEO ĐỀ 18
 -- ===================================================================
 
 -- 1. CƠ BẢN: Tìm các tập podcast có thời lượng từ 15 đến 30 phút của kênh "Tri Thức Vn"
