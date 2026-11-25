@@ -58,8 +58,6 @@ GROUP BY t.ma_tap, t.tieu_de_tap
 ORDER BY so_luot_nghe DESC;
 
 -- 6. CORRELATED SUBQUERY: Tìm các tập có lượt nghe cao hơn trung bình các tập KHÁC trong cùng kênh
-USE podify_db_vi;
-
 -- thống kê số lượt nghe của từng tập Podcast
 WITH LuotNgheTheoTap AS (
     SELECT t.ma_tap, t.ma_kenh, t.tieu_de_tap, COUNT(ls.ma_lich_su) AS luot_nghe
