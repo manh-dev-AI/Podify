@@ -4,8 +4,7 @@ CREATE DATABASE IF NOT EXISTS podify_db
 
 USE podify_db;
 
--- 1. XOA CAC BANG CU (ke ca ban tieng Anh cu neu con ton tai)
-
+-- 1. XOA CAC BANG CU 
 
 DROP TABLE IF EXISTS UngHo;
 DROP TABLE IF EXISTS DoanhThuQC;
