@@ -1,1 +1,0 @@
--- Trigger (Quang): Kiểm tra tối đa 3 hợp đồng cho mỗi Episode có thời lượng dưới 20 phút.

@@ -1,2 +1,0 @@
--- Module 02: Listening & User Interaction (Owner: Quân)
--- Tables: Subscriptions, ListeningHistory, Ratings

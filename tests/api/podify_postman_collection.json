@@ -1,0 +1,99 @@
+{
+  "info": {
+    "name": "Podify RESTful API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Bộ Postman Collection kiểm thử 3 phân hệ Content, Listening và Ads & Analytics của Podify."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:5000" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00. Health Check (with DB)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health?db=1"
+      }
+    },
+    {
+      "name": "01. Content - Login Creator (nguyenvan_a)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"nguyenvan_a\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": "{{baseUrl}}/api/content/auth/login"
+      }
+    },
+    {
+      "name": "02. Content - Filter Episodes 15-30m (Q1)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/content/episodes?channel_id=1&min_duration=900&max_duration=1800"
+      }
+    },
+    {
+      "name": "03. Listening - Home Feed",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/listening/home"
+      }
+    },
+    {
+      "name": "04. Listening - Save Progress",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"episode_id\": 1,\n  \"position_seconds\": 420,\n  \"is_completed\": false\n}"
+        },
+        "url": "{{baseUrl}}/api/listening/progress"
+      }
+    },
+    {
+      "name": "05. Listening - Upsert Rating",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"episode_id\": 1,\n  \"score\": 5,\n  \"comment\": \"Rất chi tiết!\"\n}"
+        },
+        "url": "{{baseUrl}}/api/listening/ratings"
+      }
+    },
+    {
+      "name": "06. Analytics - Test Trigger (4th contract on Ep 3 <20m)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contract_id\": 4,\n  \"episode_id\": 3,\n  \"slot_position\": \"mid-roll\",\n  \"start_offset_seconds\": 120\n}"
+        },
+        "url": "{{baseUrl}}/api/analytics/slots"
+      }
+    },
+    {
+      "name": "07. Analytics - Run Q8 Window Function",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/analytics/reports/queries/Q8"
+      }
+    }
+  ]
+}
